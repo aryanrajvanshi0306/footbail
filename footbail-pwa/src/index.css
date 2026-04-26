@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS custom properties ──────────────────────────────────────────────── */
+:root {
+  --g:    #00ff88;
+  --gb:   #00cc6a;
+  --bg:   #0a0a0f;
+  --s:    #13131a;
+  --c:    #1a1a26;
+  --b:    #2a2a3d;
+  --mt:   #6b7280;
+  --r:    #ef4444;
+  --w:    #f59e0b;
+  --radius: 12px;
+  --font: 'Inter', system-ui, sans-serif;
+}
+
+/* ── Base resets ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg);
+  color: #e2e8f0;
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--s); }
+::-webkit-scrollbar-thumb { background: var(--b); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--g); }
+
+/* ── Utilities ──────────────────────────────────────────────────────────── */
+.glass {
+  background: rgba(26, 26, 38, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--b);
+}
+
+.glow-g {
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
+}
+
+.text-g { color: var(--g); }
+.bg-g   { background: var(--g); }
+
+.btn-primary {
+  @apply bg-[#00ff88] text-black font-bold px-6 py-3 rounded-xl
+         hover:bg-[#00cc6a] active:scale-95 transition-all duration-150
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply bg-[#1a1a26] text-[#00ff88] border border-[#2a2a3d] font-semibold
+         px-6 py-3 rounded-xl hover:border-[#00ff88] hover:bg-[#2a2a3d]
+         active:scale-95 transition-all duration-150;
+}
+
+.card {
+  @apply bg-[#1a1a26] border border-[#2a2a3d] rounded-2xl p-6;
+}
+
+/* ── HLS video player ────────────────────────────────────────────────────── */
+.hls-player {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: var(--radius);
+}
+
+/* ── Progress bar animation ──────────────────────────────────────────────── */
+@keyframes indeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.progress-indeterminate::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  width: 25%;
+  background: var(--g);
+  animation: indeterminate 1.4s ease infinite;
+}
+
+/* ── Pitch heatmap ───────────────────────────────────────────────────────── */
+.heatmap-cell {
+  transition: background 0.3s ease;
+}
