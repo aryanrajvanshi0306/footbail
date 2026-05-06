@@ -1,0 +1,167 @@
+{
+  "project": "footbAIl.in",
+  "theme": "dark",
+  "archetype": "2 (Performance Pro)",
+  "concept": "India's first AI-powered Football Operating System. Gamer-grade, football-culture-first. Tactical, athletic, high-visibility.",
+  "colors": {
+    "background": {
+      "default": "#050505",
+      "card": "#111111",
+      "elevated": "#1A1A1A",
+      "var_room": "#000000"
+    },
+    "brand": {
+      "primary": "#FF3B30",
+      "secondary": "#007AFF",
+      "accent": "#E6FF00"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A1A1A1",
+      "muted": "#737373",
+      "inverse": "#000000"
+    },
+    "border": {
+      "default": "#262626",
+      "focus": "#FF3B30",
+      "divider": "#1A1A1A"
+    },
+    "fifa_tiers": {
+      "bronze": "bg-gradient-to-br from-[#8C5A40] via-[#C89B7B] to-[#5C3622] text-[#FFE8D6]",
+      "silver": "bg-gradient-to-br from-[#A6A6A6] via-[#E6E6E6] to-[#737373] text-white",
+      "gold": "bg-gradient-to-br from-[#B38C00] via-[#FFD700] to-[#806400] text-[#FFFBE6]",
+      "toty": "bg-gradient-to-br from-[#00E5FF] via-[#0055FF] to-[#001133] border-2 border-[#00E5FF] text-white shadow-[0_0_15px_rgba(0,229,255,0.5)]"
+    },
+    "status": {
+      "success": "#34C759",
+      "warning": "#FFCC00",
+      "danger": "#FF3B30",
+      "info": "#32ADE6"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "display": "Bebas Neue, sans-serif",
+      "body": "DM Sans, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-5xl md:text-6xl tracking-tight leading-none font-display uppercase",
+      "h2": "text-3xl md:text-4xl tracking-tight leading-none font-display uppercase",
+      "h3": "text-2xl md:text-3xl tracking-tight leading-none font-display uppercase",
+      "card_title": "text-lg md:text-xl font-bold font-body",
+      "body": "text-base leading-relaxed font-body",
+      "small": "text-sm font-body text-secondary",
+      "stats": "text-2xl font-bold font-mono tracking-tighter"
+    },
+    "rules": "Never use Inter/Roboto. Use Bebas Neue for all major headlines and player overall ratings. Use JetBrains Mono for all numeric stats, timers, and attributes."
+  },
+  "spacing_and_layout": {
+    "containers": "max-w-7xl mx-auto w-full",
+    "padding": {
+      "mobile": "p-4",
+      "desktop": "p-8",
+      "section": "py-12 md:py-20"
+    },
+    "grids": {
+      "bento_standard": "grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6",
+      "explore_3x3": "grid grid-cols-3 gap-3"
+    },
+    "border_radius": "rounded-none",
+    "surface_strategy": "Tactical Minimalism. 1px solid borders (`border-border`). No soft drop shadows. Use inner glows or sharp 4px hard shadows for elevated elements. Elements should feel like a command center."
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-brand-primary text-white font-bold uppercase tracking-wider h-12 px-6 flex items-center justify-center transition-colors hover:bg-[#D63026]",
+      "secondary": "bg-transparent border border-border text-white font-bold uppercase tracking-wider h-12 px-6 hover:border-brand-primary hover:text-brand-primary",
+      "ghost": "text-text-secondary hover:text-white"
+    },
+    "cards": {
+      "default": "bg-background-card border border-border p-4 hover:border-brand-primary/50 transition-colors",
+      "player_card": "relative overflow-hidden p-6 flex flex-col items-center justify-center border border-border aspect-[2/3]"
+    },
+    "inputs": "bg-background-default border border-border h-12 px-4 text-white focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none font-body",
+    "bottom_nav": "fixed bottom-0 w-full h-16 bg-background-elevated border-t border-border flex justify-around items-center z-50 pb-safe"
+  },
+  "screens_blueprint": {
+    "login_onboarding": {
+      "layout": "Full-height flex column. Hero background image with gradient overlay (to-black).",
+      "features": "Phone/Email input, OTP. Role selection (Player / Coach) using large image cards. Minimal form, high visual impact."
+    },
+    "home_tab": {
+      "layout": "Vertical feed.",
+      "features": "Social feed with text messages. Post UI with custom reactions (boot, gloves, whistle, fire, 100). Sticky header with app logo. Floating Action Button (FAB) for 'Create Match'."
+    },
+    "matches_tab": {
+      "layout": "Tabs for Scheduled/Past. List layout.",
+      "features": "Create Match flow (Team -> Opponent -> Slot -> Pay -> Confirm). Match cards showing teams, date, venue. Past matches show 'View Stats'."
+    },
+    "feed_tab": {
+      "layout": "Vertical feed.",
+      "features": "Text posts, community discussions, friend activity. Distinct from Home tab which might be more curated."
+    },
+    "explore_tab": {
+      "layout": "3x3 Grid Menu.",
+      "features": "Grid items: Coach, Teams, Partners, Leaderboard, Drills, Events, Turfs, Trophies, Tournaments. Each square has a distinct monochrome icon and tight spacing."
+    },
+    "profile_tab": {
+      "layout": "Hero profile area + Stats lists.",
+      "features": "Large Digital Player Card (FIFA-style) showing OVR, PAC/SHO/PAS/DRI/DEF/PHY. XP progress bar under card. Stats section (Goals, Assists). Match consistency graph."
+    },
+    "admin_dashboard": {
+      "layout": "Desktop-optimized sidebar + main content area. 'Control Room' grid.",
+      "features": "Data tables for Users/Turfs/Matches. Manual creation forms for Turfs/Referees/Coaches. No 'Reports' option."
+    },
+    "match_control_var": {
+      "layout": "Immersive landscape/desktop interface. Black background.",
+      "features": "Schedule click -> Camera auto-starts at turf. Large central video feed (simulated multi-angle). Control panel: Kickoff, Foul, Goal, Yellow Card, Red Card, Offside, Match Complete. Offside auto-detect notification UI."
+    },
+    "live_broadcast_viewer": {
+      "layout": "Spectator mode. Video player dominant.",
+      "features": "Live overlay of score and time (top band). Timeline events appearing as lower-thirds when goals/fouls occur."
+    },
+    "performance_analysis": {
+      "layout": "Data-heavy scrolling page.",
+      "features": "Pitch heatmap visualization. Player performance stats using JetBrains Mono. AI-generated text summary box."
+    }
+  },
+  "motion_and_interactions": {
+    "page_transitions": "Instant or very fast fade. Athletic interfaces don't waste time with slow staggers.",
+    "micro_interactions": "Active buttons click-down (scale-95). Data numbers should count-up on load.",
+    "special_fx": "XP Toast slides in sharply from top. Card tier upgrade (e.g., Silver -> Gold) uses a bright flare effect and confetti.",
+    "accessibility": "Respect prefers-reduced-motion. Use ARIA labels on all custom reaction buttons."
+  },
+  "icons": {
+    "library": "lucide-react",
+    "style": "Use 2px stroke, sharp icons. For custom reactions (boot, gloves, whistle) use SVG paths or emojis if custom SVGs are not provided.",
+    "installation": "npm install lucide-react"
+  },
+  "media_urls": {
+    "hero_stadium_login": {
+      "url": "https://images.unsplash.com/photo-1706675780107-7c43cc487928?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTF8MHwxfHNlYXJjaHwyfHxmb290YmFsbCUyMHN0YWRpdW0lMjBuaWdodHxlbnwwfHx8fDE3NzgwNzY0MzV8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Night stadium hero image for login/onboarding background"
+    },
+    "turf_placeholder": {
+      "url": "https://images.pexels.com/photos/17264600/pexels-photo-17264600.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Green turf texture for turf booking cards"
+    },
+    "action_shot_1": {
+      "url": "https://images.unsplash.com/photo-1657957746418-6a38df9e1ea7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwxfHxmb290YmFsbCUyMHBsYXllciUyMGFjdGlvbnxlbnwwfHx8fDE3NzgwNzY0MzV8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Player action shot for feed posts or explore headers"
+    },
+    "action_shot_2": {
+      "url": "https://images.pexels.com/photos/159593/football-american-football-receiver-touchdown-159593.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Dynamic player motion for promotional cards"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Read this entire JSON before implementing.",
+    "The app MUST be in Dark Mode only. No light mode toggle.",
+    "Do not use generic purple/violet tech SaaS colors. Stick to the bold Black/White/Red/Neon athletic palette defined in colors.",
+    "Typography is critical: Bebas Neue for headings, JetBrains Mono for stats, DM Sans for text. Import these from Google Fonts.",
+    "All interactive elements MUST have `data-testid` attributes (e.g., `data-testid=\"login-submit-button\"`).",
+    "Use Shadcn UI components but heavily customize them to remove the 'Vercel look' - remove border radius, make borders 1px solid, remove soft shadows.",
+    "Ensure 5-tab bottom navigation is fixed at the bottom for mobile views (Home, Matches, Feed, Explore, Profile).",
+    "Admin and VAR interfaces are desktop-first 'Control Rooms' with dense data layouts."
+  ]
+}
