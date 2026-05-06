@@ -1,0 +1,45 @@
+{
+  "summary": "First-iteration backend testing for footbAIl.in. Created /app/backend/tests/backend_test.py (pytest, 38 tests) covering health, auth/RBAC, admin seed+stats+create-user, posts+reactions, full match-control pipeline (create -> start -> events/goal/foul/offside -> broadcast -> complete -> analysis), and all 9 explore endpoints. 38/38 passed against the public REACT_APP_BACKEND_URL.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Single-file server.py (~580 LOC) — acceptable for MVP but approaching the 700-line split threshold; recommend modularizing (auth.py, matches.py, explore.py, db.py) before next feature wave.",
+    "POST /api/matches has no role guard — any authenticated user (including a player) can schedule matches. PRD says admin schedules matches; recommend `Depends(require_roles('admin'))` to harden.",
+    "POST /api/matches/{id}/events has no role guard — any logged-in user can post goals/fouls/cards. Recommend restricting to admin/referee.",
+    "POST /api/matches/{id}/offside-check has no role guard — same concern.",
+    "POST /api/admin/seed is publicly callable (no auth). Acceptable since boot calls it idempotently, but consider gating in production.",
+    "GET /api/matches/{mid}, /api/matches/{mid}/broadcast, /api/matches/{mid}/analysis are public (no auth). Likely intentional for live broadcast viewer page; documented.",
+    "Currency: prices stored in paise as INT (good). No validation that amounts >= 0.",
+    "EmailStr enforces lowercase domain only — backend manually lowercases (good). Note that registered email is stored lowercase, so any test/UI comparing raw input must lowercase.",
+    "JWT expiry is 1440 minutes (24h) — reasonable; no refresh-token endpoint.",
+    "`exp` claim is a datetime object passed to jose; jose accepts it but standard practice is int(timestamp). Currently works; flagging for awareness.",
+    "Posts model: create_post does not enforce role; coach/admin can also post (acceptable for social feed).",
+    "Heatmap points are static fixed list — confirmed mocked per PRD; consider varying by match length later.",
+    "No rate-limiting on /api/auth/login — brute-force exposure (post-MVP)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py"
+  ],
+  "success_rate": {
+    "backend": "100% (38/38)",
+    "frontend": "not tested (per request)"
+  },
+  "test_credentials": "Admin: admin@footbail.in/admin123; Player: arjun@demo.in/demo123; Coach: ravi@coach.in/demo123 — all working.",
+  "seed_data_creation": "POST /api/admin/seed verified idempotent. Confirmed: 1 admin, >=5 players, >=2 coaches, >=4 turfs, >=5 posts, >=3 matches. Tests inserted TEST_-prefixed users, posts and matches; not auto-cleaned but isolated by prefix and idempotent assertions.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All 38 backend tests in /app/backend/tests/backend_test.py pass against REACT_APP_BACKEND_URL. The 9 'critical_code_review_comments' are advisory hardening items (RBAC on /api/matches POST + events + offside-check). Offside-check tested with 5 iterations to cover randomness; it returns confidence in [0.82, 0.99] and type in {offside, onside}, auto_detected=True. Match pipeline verified end-to-end (camera_on event on start, goal increments score, manual foul has auto_detected=False, camera_off event on complete, analysis returns stats/summary/motm/heatmap_points). All responses confirmed free of MongoDB _id. Frontend not tested per main-agent request.",
+  "rca of the issue": "N/A — no production bugs. One test-script assertion was case-sensitive on email; fixed by comparing email.lower() since backend (correctly) normalises emails to lowercase on register/login."
+}
