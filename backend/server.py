@@ -428,7 +428,7 @@ async def start_match(mid: str, user: dict = Depends(require_roles("admin", "ref
     return {"ok": True, "camera_status": "recording", "broadcast_active": True}
 
 @app.post("/api/matches/{mid}/events")
-async def add_event(mid: str, body: EventIn, user: dict = Depends(current_user)):
+async def add_event(mid: str, body: EventIn, user: dict = Depends(require_roles("admin", "referee"))):
     m = await db.matches.find_one({"id": mid})
     if not m: raise HTTPException(404, "Match not found")
     ev = {"id": str(uuid.uuid4()), "match_id": mid, **body.model_dump(),
@@ -442,7 +442,7 @@ async def add_event(mid: str, body: EventIn, user: dict = Depends(current_user))
     return {k: v for k, v in ev.items() if k != "_id"}
 
 @app.post("/api/matches/{mid}/offside-check")
-async def offside_check(mid: str, user: dict = Depends(current_user)):
+async def offside_check(mid: str, user: dict = Depends(require_roles("admin", "referee"))):
     """Simulated AI offside detection — coin-flip whether it was offside."""
     import random
     is_offside = random.random() < 0.6
