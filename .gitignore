@@ -4,3 +4,12 @@ node_modules/
 __pycache__/
 dist/
 
+-e 
+# Environment and credential files
+.env
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials
