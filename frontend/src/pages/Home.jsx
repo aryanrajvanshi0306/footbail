@@ -5,6 +5,7 @@ import { Plus, Send } from 'lucide-react';
 import { api, getUser } from '../lib/api';
 import { REACTION_LABELS, fmtRelative } from '../lib/constants';
 import FIFACard from '../components/FIFACard';
+import LFGWidget from '../components/LFGWidget';
 
 export default function Home() {
   const me = getUser();
@@ -67,6 +68,11 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* LFG Widget */}
+      <div className="mx-4 mt-4">
+        <LFGWidget />
+      </div>
 
       {/* Composer */}
       <div className="mx-4 mt-6 bg-bg-card border border-line" data-testid="post-composer">

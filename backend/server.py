@@ -205,25 +205,57 @@ async def seed():
             "password_hash": hash_pw("admin123"),
             "created_at": now_iso(),
         })
-    # Seed demo players
+    # Seed demo players (multi-city for Derby)
     seed_players = [
-        ("arjun@demo.in", "Arjun Sharma", "CM", {"pac": 76, "sho": 71, "pas": 79, "dri": 74, "def": 68, "phy": 77}, "silver"),
-        ("rohit@demo.in", "Rohit Mehra", "ST", {"pac": 82, "sho": 80, "pas": 66, "dri": 78, "def": 40, "phy": 72}, "silver"),
-        ("vikram@demo.in", "Vikram Rao", "GK", {"pac": 52, "sho": 30, "pas": 58, "dri": 55, "def": 74, "phy": 78}, "bronze"),
-        ("karan@demo.in", "Karan Singh", "CB", {"pac": 64, "sho": 48, "pas": 68, "dri": 62, "def": 82, "phy": 84}, "gold"),
-        ("dev@demo.in", "Dev Patel", "LW", {"pac": 85, "sho": 72, "pas": 74, "dri": 83, "def": 42, "phy": 68}, "silver"),
+        # Mumbai (Straw Hat)
+        ("arjun@demo.in",    "Arjun Sharma",    "CM", "Mumbai",    {"pac": 76, "sho": 71, "pas": 79, "dri": 74, "def": 68, "phy": 77}, "silver"),
+        ("rohit@demo.in",    "Rohit Mehra",     "ST", "Mumbai",    {"pac": 82, "sho": 80, "pas": 66, "dri": 78, "def": 40, "phy": 72}, "silver"),
+        ("vikram@demo.in",   "Vikram Rao",      "GK", "Mumbai",    {"pac": 52, "sho": 30, "pas": 58, "dri": 55, "def": 74, "phy": 78}, "bronze"),
+        ("karan@demo.in",    "Karan Singh",     "CB", "Mumbai",    {"pac": 64, "sho": 48, "pas": 68, "dri": 62, "def": 82, "phy": 84}, "gold"),
+        ("dev@demo.in",      "Dev Patel",       "LW", "Mumbai",    {"pac": 85, "sho": 72, "pas": 74, "dri": 83, "def": 42, "phy": 68}, "silver"),
+        # Delhi (Hidden Leaf)
+        ("aryan@delhi.in",   "Aryan Kapoor",    "CAM","Delhi",     {"pac": 78, "sho": 79, "pas": 84, "dri": 86, "def": 50, "phy": 70}, "gold"),
+        ("ishan@delhi.in",   "Ishan Khanna",    "RW", "Delhi",     {"pac": 88, "sho": 75, "pas": 70, "dri": 84, "def": 38, "phy": 66}, "silver"),
+        ("manav@delhi.in",   "Manav Gupta",     "CDM","Delhi",     {"pac": 70, "sho": 60, "pas": 80, "dri": 70, "def": 80, "phy": 82}, "gold"),
+        # Bangalore (Plus Ultra)
+        ("aditya@blr.in",    "Aditya Iyer",     "ST", "Bangalore", {"pac": 86, "sho": 82, "pas": 68, "dri": 80, "def": 42, "phy": 74}, "gold"),
+        ("rahul@blr.in",     "Rahul Reddy",     "CM", "Bangalore", {"pac": 74, "sho": 70, "pas": 82, "dri": 78, "def": 70, "phy": 72}, "silver"),
+        ("nikhil@blr.in",    "Nikhil Menon",    "LB", "Bangalore", {"pac": 80, "sho": 50, "pas": 72, "dri": 68, "def": 78, "phy": 76}, "silver"),
+        # Kolkata (Cursed)
+        ("sourav@kol.in",    "Sourav Ghosh",    "ST", "Kolkata",   {"pac": 84, "sho": 86, "pas": 64, "dri": 82, "def": 38, "phy": 72}, "gold"),
+        ("debjit@kol.in",    "Debjit Dutta",    "CB", "Kolkata",   {"pac": 60, "sho": 42, "pas": 70, "dri": 60, "def": 86, "phy": 82}, "silver"),
+        # Chennai (Power Spark)
+        ("vinay@chn.in",     "Vinay Krishnan",  "CM", "Chennai",   {"pac": 76, "sho": 72, "pas": 80, "dri": 76, "def": 64, "phy": 70}, "silver"),
+        ("ajith@chn.in",     "Ajith Kumar",     "RW", "Chennai",   {"pac": 86, "sho": 70, "pas": 68, "dri": 84, "def": 40, "phy": 64}, "silver"),
+        # Hyderabad (The Wall)
+        ("imran@hyd.in",     "Imran Ali",       "CB", "Hyderabad", {"pac": 62, "sho": 40, "pas": 66, "dri": 58, "def": 88, "phy": 86}, "gold"),
+        ("rohan@hyd.in",     "Rohan Naidu",     "GK", "Hyderabad", {"pac": 50, "sho": 30, "pas": 60, "dri": 52, "def": 78, "phy": 80}, "silver"),
+        # Pune (Breath of Flame)
+        ("sahil@pune.in",    "Sahil Joshi",     "ST", "Pune",      {"pac": 82, "sho": 82, "pas": 64, "dri": 80, "def": 40, "phy": 72}, "silver"),
+        # Kochi (Gotta Catch)
+        ("anand@kochi.in",   "Anand Pillai",    "LW", "Kochi",     {"pac": 84, "sho": 70, "pas": 74, "dri": 82, "def": 44, "phy": 66}, "silver"),
     ]
-    for email, name, pos, attrs, tier in seed_players:
+    for email, name, pos, city, attrs, tier in seed_players:
         if not await db.users.find_one({"email": email}):
             ovr = round(sum(attrs.values()) / 6)
+            # Per-city XP/stats variation so the Derby has actual rivalry
+            import random
+            random.seed(hash(email) & 0xFFFFFFFF)
+            xp = random.randint(800, 6500)
             await db.users.insert_one({
                 "id": str(uuid.uuid4()),
                 "email": email, "name": name, "role": "player",
-                "position": pos, "city": "Mumbai",
+                "position": pos, "city": city,
                 "password_hash": hash_pw("demo123"),
                 "attributes": attrs, "overall": ovr, "card_tier": tier,
-                "xp": 3420, "xp_to_next": 10000, "consistency": 82,
-                "stats": {"matches": 47, "goals": 12, "assists": 23, "streak": 6},
+                "xp": xp, "xp_to_next": 10000,
+                "consistency": random.randint(60, 92),
+                "stats": {
+                    "matches": random.randint(8, 56),
+                    "goals": random.randint(2, 22),
+                    "assists": random.randint(1, 18),
+                    "streak": random.randint(0, 9),
+                },
                 "created_at": now_iso(),
             })
     # Seed coaches
@@ -574,6 +606,238 @@ def _fallback_summary(match: dict, events: list) -> str:
         f"with {len(fouls)} fouls and {len(yellows)} cautions. "
         f"AI offside system flagged {len(offsides)} close calls — all correctly overturned."
     )
+
+
+# ───────────────────────── Module 03 — Pre-Match Intelligence ─────────────────────────
+@app.get("/api/matches/{mid}/brief")
+async def pre_match_brief(mid: str, user: dict = Depends(current_user)):
+    """Pre-Match Intelligence Pack: form, H2H, win probability, AI tactical brief.
+    Cached in `match_briefs` so we don't re-spend on GPT calls."""
+    m = await db.matches.find_one({"id": mid}, {"_id": 0})
+    if not m: raise HTTPException(404, "Match not found")
+
+    cached = await db.match_briefs.find_one({"match_id": mid}, {"_id": 0})
+    if cached:
+        return cached
+
+    import random
+    random.seed(hash(mid) & 0xFFFFFFFF)
+
+    # Mock form (last 5 W/D/L) per team
+    def form_for(team):
+        outcomes = random.choices(["W", "D", "L"], weights=[5, 2, 3], k=5)
+        return {"team": team, "form": outcomes,
+                "wins": outcomes.count("W"), "draws": outcomes.count("D"), "losses": outcomes.count("L")}
+    home_form = form_for(m["home_team"])
+    away_form = form_for(m["away_team"])
+
+    # Win probability — Poisson-ish on form
+    home_strength = home_form["wins"] * 3 + home_form["draws"] - home_form["losses"]
+    away_strength = away_form["wins"] * 3 + away_form["draws"] - away_form["losses"]
+    total = max(1, home_strength + away_strength + 8)  # +8 for draw weight
+    home_pct = max(15, min(70, int((home_strength + 4) / total * 100)))
+    away_pct = max(15, min(70, int((away_strength + 4) / total * 100)))
+    draw_pct = max(5, 100 - home_pct - away_pct)
+
+    # H2H — 3 mocked previous matches
+    h2h = []
+    for i in range(3):
+        h, a = random.randint(0, 4), random.randint(0, 4)
+        h2h.append({"date": f"2025-{random.randint(1,12):02d}-{random.randint(1,28):02d}",
+                    "home_team": m["home_team"], "away_team": m["away_team"],
+                    "home_score": h, "away_score": a,
+                    "winner": m["home_team"] if h > a else m["away_team"] if a > h else "Draw"})
+
+    # Key matchup card
+    matchups = [
+        {"label": "Midfield Battle", "ours": "Arjun Sharma (CM)", "theirs": "their CDM", "edge": "track late runs"},
+        {"label": "Pace Down Wing", "ours": "Dev Patel (LW)", "theirs": "their RB", "edge": "force 1v1s early"},
+        {"label": "Set Piece Threat", "ours": "Karan Singh (CB)", "theirs": "their CBs", "edge": "near-post runs"},
+    ]
+    pick = random.choice(matchups)
+
+    # AI tactical brief
+    brief_text = await _ai_pre_match_brief(m, home_form, away_form, home_pct, draw_pct, away_pct, pick)
+
+    # Personal role card (assumes user is player)
+    role_card = {
+        "position": user.get("position", "CM"),
+        "instruction": "Stay compact in the half-spaces. Recycle through the holding role on transitions.",
+        "targets": ["Win 6+ second-balls", "Complete 80%+ of passes in the final third"],
+        "watch_out": "Their false-9 drops between lines on goal-kicks — track him."
+    }
+
+    doc = {
+        "match_id": mid,
+        "home_form": home_form, "away_form": away_form,
+        "win_probability": {"home": home_pct, "draw": draw_pct, "away": away_pct},
+        "h2h": h2h,
+        "key_matchup": pick,
+        "ai_brief": brief_text,
+        "ai_brief_source": "gpt-4o-mini" if EMERGENT_LLM_KEY and "Stay compact" not in brief_text else "fallback",
+        "role_card": role_card,
+        "generated_at": now_iso(),
+    }
+    await db.match_briefs.update_one({"match_id": mid}, {"$set": doc}, upsert=True)
+    return doc
+
+
+async def _ai_pre_match_brief(match, home_form, away_form, hp, dp, ap, pick) -> str:
+    fb = (
+        f"{match['home_team']} arrive with {home_form['wins']}W-{home_form['draws']}D-{home_form['losses']}L form, "
+        f"{match['away_team']} with {away_form['wins']}W-{away_form['draws']}D-{away_form['losses']}L. "
+        f"Model gives {match['home_team']} a {hp}% edge with a {dp}% draw lean. "
+        f"Decisive zone: {pick['label']} — {pick['edge']}."
+    )
+    if not EMERGENT_LLM_KEY:
+        return fb
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        prompt = (
+            f"Match: {match['home_team']} vs {match['away_team']} at {match.get('turf_name','Turf')} ({match.get('format','5v5')}).\n"
+            f"Home form: {''.join(home_form['form'])} ({home_form['wins']}W-{home_form['draws']}D-{home_form['losses']}L). "
+            f"Away form: {''.join(away_form['form'])} ({away_form['wins']}W-{away_form['draws']}D-{away_form['losses']}L).\n"
+            f"Win probability: home {hp}% · draw {dp}% · away {ap}%.\n"
+            f"Key matchup: {pick['label']} — our {pick['ours']} vs {pick['theirs']}; edge: {pick['edge']}.\n\n"
+            "Write a 2-paragraph pre-match brief (~80 words). "
+            "Para 1: how the match will likely flow & where it's decided. "
+            "Para 2: one specific tactical adjustment our team should make. "
+            "Voice: confident football analyst. No headings. No emojis. No markdown. "
+            "Separate paragraphs with a blank line."
+        )
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"brief-{match['id']}",
+            system_message="You are an Indian grassroots football tactical analyst for footbAIl.in. Crisp, specific, no clichés."
+        ).with_model("openai", "gpt-4o-mini")
+        resp = await asyncio.wait_for(chat.send_message(UserMessage(text=prompt)), timeout=20)
+        text = (resp or "").strip()
+        return text if len(text) > 40 else fb
+    except Exception as e:
+        log.warning("Pre-match AI brief failed: %s", e)
+        return fb
+
+
+# ───────────────────────── Module 16 — Smart Matchmaking / LFG ─────────────────────────
+class LFGIn(BaseModel):
+    city: str
+    format: str = "5v5"   # 5v5 / 7v7 / 11v11
+    skill_bracket: Literal["casual", "intermediate", "competitive"] = "intermediate"
+    earliest: str   # ISO datetime
+    latest: str     # ISO datetime (max 3h after earliest)
+    spots: int = 1  # how many players you need
+    note: Optional[str] = None
+
+
+@app.post("/api/lfg")
+async def lfg_create(body: LFGIn, user: dict = Depends(current_user)):
+    if user["role"] not in {"player", "coach"}:
+        raise HTTPException(403, "Only players & coaches can broadcast LFG")
+    # Cancel any existing active LFG by this user
+    await db.lfg.update_many({"user_id": user["id"], "status": "active"}, {"$set": {"status": "cancelled"}})
+    doc = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "user_name": user["name"],
+        "user_position": user.get("position"),
+        "user_tier": user.get("card_tier", "bronze"),
+        "city": body.city,
+        "format": body.format,
+        "skill_bracket": body.skill_bracket,
+        "earliest": body.earliest,
+        "latest": body.latest,
+        "spots": body.spots,
+        "note": body.note,
+        "status": "active",
+        "created_at": now_iso(),
+    }
+    await db.lfg.insert_one(doc)
+    return {k: v for k, v in doc.items() if k != "_id"}
+
+
+@app.get("/api/lfg")
+async def lfg_list(city: Optional[str] = None):
+    """List active LFGs in the next 3 hours, optionally filtered by city."""
+    now = datetime.now(timezone.utc)
+    horizon = now + timedelta(hours=3)
+    query = {"status": "active"}
+    if city: query["city"] = city
+    rows = await db.lfg.find(query, {"_id": 0}).sort("earliest", 1).to_list(100)
+    # Filter out expired ones in-memory
+    out = []
+    for r in rows:
+        try:
+            latest = datetime.fromisoformat(r["latest"].replace("Z", "+00:00"))
+            if latest > now and datetime.fromisoformat(r["earliest"].replace("Z", "+00:00")) < horizon + timedelta(hours=24):
+                out.append(r)
+        except Exception:
+            out.append(r)
+    return out
+
+
+@app.delete("/api/lfg/{lfg_id}")
+async def lfg_cancel(lfg_id: str, user: dict = Depends(current_user)):
+    r = await db.lfg.find_one({"id": lfg_id})
+    if not r: raise HTTPException(404, "Not found")
+    if r["user_id"] != user["id"] and user["role"] != "admin":
+        raise HTTPException(403, "Not your broadcast")
+    await db.lfg.update_one({"id": lfg_id}, {"$set": {"status": "cancelled"}})
+    return {"ok": True}
+
+
+# ───────────────────────── Module 11 (extension) — City Derby Leaderboard ─────────────────────────
+CITY_THEMES_BACKEND = {
+    "Mumbai":    {"accent": "#F5A623", "subtitle": "Straw Hat City"},
+    "Delhi":     {"accent": "#FF6B00", "subtitle": "Hidden Leaf"},
+    "Bangalore": {"accent": "#00C853", "subtitle": "Plus Ultra"},
+    "Kolkata":   {"accent": "#7C3AED", "subtitle": "Cursed City"},
+    "Chennai":   {"accent": "#FFD600", "subtitle": "Power Spark"},
+    "Hyderabad": {"accent": "#00897B", "subtitle": "The Wall"},
+    "Pune":      {"accent": "#E91E63", "subtitle": "Breath of Flame"},
+    "Kochi":     {"accent": "#FFEB3B", "subtitle": "Gotta Catch"},
+}
+
+
+@app.get("/api/explore/derby")
+async def city_derby():
+    """Aggregate XP, players, matches, goals per city → ranked leaderboard."""
+    pipeline = [
+        {"$match": {"role": "player"}},
+        {"$group": {
+            "_id": "$city",
+            "players": {"$sum": 1},
+            "total_xp": {"$sum": {"$ifNull": ["$xp", 0]}},
+            "total_goals": {"$sum": {"$ifNull": ["$stats.goals", 0]}},
+            "total_matches": {"$sum": {"$ifNull": ["$stats.matches", 0]}},
+            "avg_overall": {"$avg": {"$ifNull": ["$overall", 60]}},
+        }},
+    ]
+    raw = await db.users.aggregate(pipeline).to_list(50)
+    by_city = {r["_id"]: r for r in raw if r.get("_id")}
+
+    # Ensure every defined city appears (even with zero players)
+    rows = []
+    for city, theme in CITY_THEMES_BACKEND.items():
+        s = by_city.get(city, {"players": 0, "total_xp": 0, "total_goals": 0, "total_matches": 0, "avg_overall": 0})
+        # City score = weighted blend (xp + goals*100 + matches*5 + avg_overall*100)
+        score = int(s.get("total_xp", 0)
+                    + s.get("total_goals", 0) * 100
+                    + s.get("total_matches", 0) * 5
+                    + (s.get("avg_overall") or 0) * 100)
+        rows.append({
+            "city": city,
+            "accent": theme["accent"],
+            "subtitle": theme["subtitle"],
+            "players": s.get("players", 0),
+            "total_xp": int(s.get("total_xp", 0)),
+            "total_goals": s.get("total_goals", 0),
+            "total_matches": s.get("total_matches", 0),
+            "avg_overall": round(s.get("avg_overall") or 0, 1),
+            "score": score,
+        })
+    rows.sort(key=lambda r: r["score"], reverse=True)
+    for i, r in enumerate(rows): r["rank"] = i + 1
+    return rows
 
 # ───────────────────────── Explore (3x3) ─────────────────────────
 @app.get("/api/explore/coaches")

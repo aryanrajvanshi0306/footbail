@@ -1,10 +1,62 @@
 # footbAIl.in — Product Requirements Document (Living)
 
-> Last updated: 2026-05-07 · **Iteration 2** (Design refresh + GPT-4o-mini wired + Share Reel + City Anime Theming)
+> Last updated: 2026-05-07 · **Iteration 3** (Module 03 Pre-Match Intel + Module 16 LFG + City Derby)
 
 ## 1. Vision
 
 India's first AI-powered Football Operating System. A "player intelligence platform" — booking is just the entry point; the moat is data + AI-driven performance improvement (FIFA-style player cards, AI video analysis, VAR-grade match control).
+
+## Iteration 3 — What Changed (2026-05-07)
+
+After the user pasted the L0 brief (16 modules, 5 roles, anime theming, India-specific) and said "proceed with best judgment", three high-impact PRD modules shipped without needing PostgreSQL/Celery/SageMaker:
+
+### New Modules Live
+1. **Module 03 — Pre-Match Intelligence Pack** (`/match/:id/brief`)
+   - `POST/GET /api/matches/{id}/brief` — generates + caches in `match_briefs` collection
+   - **Real GPT-4o-mini** 2-paragraph tactical brief (~80 words, voice-tuned to Indian grassroots)
+   - AI Win Probability bar (Poisson-ish on form data) — H/D/A%
+   - Last-5 form per team, color-coded W/D/L (green/amber/red)
+   - H2H last 3 matches w/ winner
+   - Key Matchup card: ours vs theirs + tactical edge
+   - Personal Role Card: position, instruction, 2 targets, 1 "watch out"
+   - Cached per match (idempotent re-fetch is instant)
+
+2. **Module 16 — Smart Matchmaking / LFG** (Home tab widget)
+   - `POST /api/lfg`, `GET /api/lfg?city=`, `DELETE /api/lfg/{id}`
+   - 30min–3hr broadcast window, format/skill/spots
+   - City-scoped (auto-filters by user's city)
+   - One active LFG per user (auto-cancels prior)
+   - "I'm In" (other) / "X" cancel (own) actions
+   - Renders inside Home in user's city accent
+
+3. **City Derby Leaderboard** (`/explore/derby`) — Module 11 extension
+   - `GET /api/explore/derby` aggregates XP/goals/matches per city
+   - 8-city ranked table; each city rendered in its anime accent (Mumbai gold, Bangalore green, Delhi orange, Kolkata violet, Pune pink, Kochi yellow, Chennai yellow, Hyderabad teal)
+   - Hero card with `city-shine` animation + grain on current leader
+   - "Your City" callout w/ rank + XP gap to #1
+   - Score formula transparent at bottom (XP + goals×100 + matches×5 + avgOVR×100)
+
+### Multi-City Seed
+Seed expanded to **20 players across all 8 cities** with randomised stats so the Derby has actual rivalry on first boot. Mumbai #1 (8 players, 17.1k XP), Bangalore #2, Delhi #3, etc.
+
+### Files Added
+- `/app/frontend/src/pages/MatchBrief.jsx`
+- `/app/frontend/src/pages/CityDerby.jsx`
+- `/app/frontend/src/components/LFGWidget.jsx`
+
+### Files Modified
+- `/app/backend/server.py` — added Module 03, 16, City Derby endpoints + GPT-4o-mini brief + multi-city seed
+- `/app/frontend/src/App.js` — `/match/:id/brief` and `/explore/derby` routes
+- `/app/frontend/src/pages/MatchDetail.jsx` — "View AI Brief" CTA on scheduled matches
+- `/app/frontend/src/pages/Home.jsx` — LFG widget mounted above composer
+- `/app/frontend/src/pages/Explore.jsx` — added "City Derby" tile (replaces "Events"), reordered grid
+
+### Verified
+- `GET /api/matches/{id}/brief` returns crisp GPT-4o-mini 2-para brief in ~5.5s; cached after
+- `GET /api/explore/derby` returns 8 cities ranked correctly w/ accents
+- `POST /api/lfg` + `GET /api/lfg?city=Mumbai` round-trip works
+- All 4 screens render perfectly (mobile + desktop)
+- All 38/38 backend tests from Iter 1 still passing
 
 ## Iteration 2 — What Changed (2026-05-07)
 

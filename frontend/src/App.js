@@ -19,6 +19,8 @@ import AdminMatchControl from './pages/admin/MatchControl';
 import VARRoom from './pages/VARRoom';
 import LiveBroadcast from './pages/LiveBroadcast';
 import MatchAnalysis from './pages/MatchAnalysis';
+import MatchBrief from './pages/MatchBrief';
+import CityDerby from './pages/CityDerby';
 import AppShell from './components/AppShell';
 
 function Protected({ children, roles }) {
@@ -54,6 +56,7 @@ export default function App() {
           <Route path="/matches/:id" element={<MatchDetail />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/explore" element={<Explore />} />
+          <Route path="/explore/derby" element={<CityDerby />} />
           <Route path="/explore/:section" element={<ExploreSection />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
@@ -61,6 +64,7 @@ export default function App() {
         {/* Broadcast & analysis (public-ish, uses login) */}
         <Route path="/broadcast/:id" element={<Protected><LiveBroadcast /></Protected>} />
         <Route path="/match/:id/analysis" element={<Protected><MatchAnalysis /></Protected>} />
+        <Route path="/match/:id/brief" element={<Protected><MatchBrief /></Protected>} />
 
         {/* Admin */}
         <Route path="/admin" element={<Protected roles={['admin']}><AdminDashboard /></Protected>} />

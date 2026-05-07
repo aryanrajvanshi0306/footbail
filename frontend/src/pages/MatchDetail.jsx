@@ -42,6 +42,11 @@ export default function MatchDetail() {
               <Tv className="w-3.5 h-3.5" /> Watch Live
             </button>
           )}
+          {match.status === 'scheduled' && (
+            <button data-testid="view-brief-btn" onClick={() => nav(`/match/${id}/brief`)} className="flex-1 bg-accent-purple text-black font-bold h-10 font-mono uppercase text-xs tracking-widest flex items-center justify-center gap-1 hover:opacity-90">
+              <Tv className="w-3.5 h-3.5" /> View AI Brief
+            </button>
+          )}
           {match.status === 'complete' && (
             <button data-testid="view-analysis-btn" onClick={() => nav(`/match/${id}/analysis`)} className="flex-1 bg-accent-amber text-black font-bold h-10 font-mono uppercase text-xs tracking-widest flex items-center justify-center gap-1">
               <BarChart3 className="w-3.5 h-3.5" /> View Analysis

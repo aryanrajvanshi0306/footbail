@@ -1,17 +1,17 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Handshake, Trophy, Dumbbell, CalendarDays, MapPinned, Award, Crown, Megaphone } from 'lucide-react';
+import { Users, Handshake, Trophy, Dumbbell, CalendarDays, MapPinned, Award, Crown, Megaphone, Swords } from 'lucide-react';
 
 const ITEMS = [
-  { key: 'coach',       label: 'Coach',       icon: Megaphone,    color: '#FF3B30' },
-  { key: 'teams',       label: 'Teams',       icon: Users,        color: '#007AFF' },
-  { key: 'partners',    label: 'Partners',    icon: Handshake,    color: '#E6FF00' },
-  { key: 'leaderboard', label: 'Leaderboard', icon: Crown,        color: '#FFCC00' },
-  { key: 'drills',      label: 'Drills',      icon: Dumbbell,     color: '#34C759' },
-  { key: 'events',      label: 'Events',      icon: CalendarDays, color: '#32ADE6' },
-  { key: 'turfs',       label: 'Turfs',       icon: MapPinned,    color: '#A1A1A1' },
+  { key: 'derby',       label: 'City Derby',  icon: Swords,       color: '#A78BFA' },
+  { key: 'leaderboard', label: 'Leaderboard', icon: Crown,        color: '#F59E0B' },
+  { key: 'coach',       label: 'Coach',       icon: Megaphone,    color: '#FF4D4D' },
+  { key: 'teams',       label: 'Teams',       icon: Users,        color: '#38BDF8' },
+  { key: 'partners',    label: 'Partners',    icon: Handshake,    color: '#FFB830' },
+  { key: 'drills',      label: 'Drills',      icon: Dumbbell,     color: '#00E676' },
+  { key: 'turfs',       label: 'Turfs',       icon: MapPinned,    color: '#94A3B8' },
   { key: 'trophies',    label: 'Trophies',    icon: Trophy,       color: '#FFD700' },
-  { key: 'tournaments', label: 'Tournaments', icon: Award,        color: '#FF3B30' },
+  { key: 'tournaments', label: 'Tournaments', icon: Award,        color: '#FF4D4D' },
 ];
 
 export default function Explore() {

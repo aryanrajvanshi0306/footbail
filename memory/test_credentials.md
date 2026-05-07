@@ -8,14 +8,44 @@
 - **Role:** `admin`
 - **Capabilities:** Full Control Room, manually create Turf Owner / Referee, schedule matches, run VAR
 
-## Demo Players (seed)
-| Email | Password | Name | Position | Tier |
-|---|---|---|---|---|
-| `arjun@demo.in` | `demo123` | Arjun Sharma | CM | silver |
-| `rohit@demo.in` | `demo123` | Rohit Mehra | ST | silver |
-| `vikram@demo.in` | `demo123` | Vikram Rao | GK | bronze |
-| `karan@demo.in` | `demo123` | Karan Singh | CB | gold |
-| `dev@demo.in` | `demo123` | Dev Patel | LW | silver |
+## Demo Players (seed — multi-city for City Derby)
+
+### Mumbai 🟠 (Straw Hat)
+| Email | Pwd | Position | Tier |
+|---|---|---|---|
+| `arjun@demo.in` | `demo123` | CM | silver |
+| `rohit@demo.in` | `demo123` | ST | silver |
+| `vikram@demo.in` | `demo123` | GK | bronze |
+| `karan@demo.in` | `demo123` | CB | gold |
+| `dev@demo.in` | `demo123` | LW | silver |
+
+### Delhi 🟧 (Hidden Leaf)
+| `aryan@delhi.in` | `demo123` | CAM | gold |
+| `ishan@delhi.in` | `demo123` | RW | silver |
+| `manav@delhi.in` | `demo123` | CDM | gold |
+
+### Bangalore 🟢 (Plus Ultra)
+| `aditya@blr.in` | `demo123` | ST | gold |
+| `rahul@blr.in` | `demo123` | CM | silver |
+| `nikhil@blr.in` | `demo123` | LB | silver |
+
+### Kolkata 🟣 (Cursed City)
+| `sourav@kol.in` | `demo123` | ST | gold |
+| `debjit@kol.in` | `demo123` | CB | silver |
+
+### Chennai 🟡 (Power Spark)
+| `vinay@chn.in` | `demo123` | CM | silver |
+| `ajith@chn.in` | `demo123` | RW | silver |
+
+### Hyderabad 🟦 (The Wall)
+| `imran@hyd.in` | `demo123` | CB | gold |
+| `rohan@hyd.in` | `demo123` | GK | silver |
+
+### Pune 🟥 (Breath of Flame)
+| `sahil@pune.in` | `demo123` | ST | silver |
+
+### Kochi 🟨 (Gotta Catch)
+| `anand@kochi.in` | `demo123` | LW | silver |
 
 ## Demo Coaches (seed)
 - `ravi@coach.in` / `demo123` (Coach Ravi Kumar)
