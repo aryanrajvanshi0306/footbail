@@ -11,12 +11,16 @@ Roles:
 import os
 import uuid
 import asyncio
+import base64
+import hashlib
+import hmac
+import json
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Optional, List, Literal
+from typing import Optional, List, Literal, Set
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -463,6 +467,7 @@ async def start_match(mid: str, user: dict = Depends(require_roles("admin", "ref
           "notes": "Turf camera started — live broadcast active",
           "minute": 0, "auto_detected": True, "created_at": now_iso()}
     await db.match_events.insert_one(ev)
+    await _ws_push_event(mid, ev, score=m.get("score", {"home": 0, "away": 0}))
     return {"ok": True, "camera_status": "recording", "broadcast_active": True}
 
 @app.post("/api/matches/{mid}/events")
@@ -477,6 +482,8 @@ async def add_event(mid: str, body: EventIn, user: dict = Depends(require_roles(
     if body.type == "goal" and body.team:
         update_key = "score.home" if body.team == m["home_team"] else "score.away"
         await db.matches.update_one({"id": mid}, {"$inc": {update_key: 1}})
+    fresh = await db.matches.find_one({"id": mid}, {"_id": 0, "score": 1})
+    await _ws_push_event(mid, ev, score=(fresh or {}).get("score"))
     return {k: v for k, v in ev.items() if k != "_id"}
 
 @app.post("/api/matches/{mid}/offside-check")
@@ -491,6 +498,7 @@ async def offside_check(mid: str, user: dict = Depends(require_roles("admin", "r
           "auto_detected": True, "confidence": round(random.uniform(0.82, 0.99), 2),
           "created_at": now_iso()}
     await db.match_events.insert_one(ev)
+    await _ws_push_event(mid, ev)
     return {k: v for k, v in ev.items() if k != "_id"}
 
 @app.post("/api/matches/{mid}/complete")
@@ -505,6 +513,9 @@ async def complete_match(mid: str, user: dict = Depends(require_roles("admin", "
           "notes": "Match complete — camera recording stopped", "auto_detected": True,
           "created_at": now_iso()}
     await db.match_events.insert_one(ev)
+    await _ws_push_event(mid, ev, score=m.get("score"))
+    # Final lifecycle marker
+    await ws_manager.broadcast(mid, {"type": "match_complete", "match_id": mid})
     return {"ok": True, "status": "complete"}
 
 @app.get("/api/matches/{mid}/broadcast")
@@ -904,3 +915,377 @@ async def tournaments():
 @app.get("/api/explore/turfs")
 async def explore_turfs():
     return await db.turfs.find({}, {"_id": 0}).to_list(100)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Module — WebSocket Live Broadcast (replaces 3s polling)
+# ═══════════════════════════════════════════════════════════════════════════
+class _WSManager:
+    """Per-match WebSocket connection manager. Broadcasts JSON event payloads."""
+    def __init__(self):
+        self._conns: dict[str, Set[WebSocket]] = {}
+
+    async def connect(self, match_id: str, ws: WebSocket):
+        await ws.accept()
+        self._conns.setdefault(match_id, set()).add(ws)
+        log.info("ws connected match=%s viewers=%d", match_id, len(self._conns[match_id]))
+
+    def disconnect(self, match_id: str, ws: WebSocket):
+        peers = self._conns.get(match_id) or set()
+        peers.discard(ws)
+        if not peers:
+            self._conns.pop(match_id, None)
+
+    def viewer_count(self, match_id: str) -> int:
+        return len(self._conns.get(match_id) or set())
+
+    async def broadcast(self, match_id: str, payload: dict):
+        peers = list(self._conns.get(match_id) or set())
+        if not peers:
+            return
+        msg = json.dumps(payload, default=str)
+        dead: list[WebSocket] = []
+        for ws in peers:
+            try:
+                await ws.send_text(msg)
+            except Exception:
+                dead.append(ws)
+        for d in dead:
+            self.disconnect(match_id, d)
+
+
+ws_manager = _WSManager()
+
+
+@app.websocket("/api/ws/match/{mid}")
+async def ws_match(ws: WebSocket, mid: str):
+    """Client subscribes to live updates for a match. Server pushes:
+       - on connect: full snapshot { type: 'snapshot', match, events, viewers }
+       - on event:    { type: 'event', event, score, viewers }
+       - heartbeat:   client must send {"type":"ping"} → server replies {"type":"pong"}.
+    """
+    m = await db.matches.find_one({"id": mid}, {"_id": 0})
+    if not m:
+        await ws.close(code=4404)
+        return
+    await ws_manager.connect(mid, ws)
+    try:
+        events = await db.match_events.find({"match_id": mid}, {"_id": 0}).sort("created_at", 1).to_list(500)
+        await ws.send_text(json.dumps({
+            "type": "snapshot", "match": m, "events": events,
+            "viewers": ws_manager.viewer_count(mid),
+        }, default=str))
+        # Notify others of viewer count change
+        await ws_manager.broadcast(mid, {"type": "viewers", "viewers": ws_manager.viewer_count(mid)})
+        while True:
+            msg = await ws.receive_text()
+            try:
+                data = json.loads(msg)
+            except json.JSONDecodeError:
+                continue
+            if data.get("type") == "ping":
+                await ws.send_text(json.dumps({"type": "pong", "ts": now_iso()}))
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        log.warning("ws error match=%s err=%s", mid, e)
+    finally:
+        ws_manager.disconnect(mid, ws)
+        # Notify remaining peers of viewer drop
+        try:
+            await ws_manager.broadcast(mid, {"type": "viewers", "viewers": ws_manager.viewer_count(mid)})
+        except Exception:
+            pass
+
+
+async def _ws_push_event(mid: str, ev: dict, score: Optional[dict] = None):
+    """Helper: broadcast an event dict to all WS subscribers for a match."""
+    payload = {"type": "event", "event": {k: v for k, v in ev.items() if k != "_id"}}
+    if score is not None:
+        payload["score"] = score
+    payload["viewers"] = ws_manager.viewer_count(mid)
+    await ws_manager.broadcast(mid, payload)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Module — Phone OTP (DEV bypass; real Firebase wiring point)
+# ═══════════════════════════════════════════════════════════════════════════
+DEV_OTP = "123456"
+
+
+def _normalize_phone(phone: str) -> str:
+    """Accept '9876543210' / '+919876543210' / '09876...' → '+91XXXXXXXXXX'."""
+    s = ''.join(ch for ch in (phone or '') if ch.isdigit() or ch == '+')
+    if s.startswith('+91') and len(s) == 13:
+        return s
+    if s.startswith('91') and len(s) == 12:
+        return '+' + s
+    if s.startswith('0') and len(s) == 11:
+        return '+91' + s[1:]
+    if len(s) == 10 and s[0] in '6789':
+        return '+91' + s
+    raise HTTPException(422, "Enter a valid Indian mobile number")
+
+
+class OTPSendIn(BaseModel):
+    phone: str
+
+
+class OTPVerifyIn(BaseModel):
+    phone: str
+    otp: str = Field(min_length=6, max_length=6)
+    name: Optional[str] = None
+    role: Optional[Literal["player", "coach"]] = "player"
+    city: Optional[str] = "Mumbai"
+
+
+@app.post("/api/auth/otp/send")
+async def otp_send(body: OTPSendIn):
+    """DEV: returns dev_otp in the response for easy local testing.
+    PROD: swap to call _send_via_firebase / _send_via_msg91 (see postgres_layer/app/auth/otp.py)."""
+    phone = _normalize_phone(body.phone)
+    # Rate-limit (3 / 10 min) — simple Mongo-backed counter
+    win_start = datetime.now(timezone.utc) - timedelta(minutes=10)
+    count = await db.otp_log.count_documents({"phone": phone, "created_at_dt": {"$gte": win_start}})
+    if count >= 3:
+        raise HTTPException(429, "Too many OTP requests. Try again in 10 minutes.")
+    await db.otp_log.insert_one({"phone": phone, "created_at_dt": datetime.now(timezone.utc),
+                                  "created_at": now_iso(), "dev_mode": True})
+    log.info("OTP issued phone=%s****%s dev_mode=True", phone[:3], phone[-4:])
+    return {"sent": True, "expires_in": 300, "dev_mode": True, "dev_otp": DEV_OTP,
+            "message": "DEV mode — use OTP 123456 (any phone)."}
+
+
+@app.post("/api/auth/otp/verify", response_model=TokenOut)
+async def otp_verify(body: OTPVerifyIn):
+    phone = _normalize_phone(body.phone)
+    if body.otp != DEV_OTP:
+        raise HTTPException(401, "Invalid or expired OTP")
+    # Login OR auto-create
+    u = await db.users.find_one({"phone": phone})
+    if not u:
+        # First-time signup via OTP
+        uid = str(uuid.uuid4())
+        role = body.role or "player"
+        if role == "player":
+            attrs = {"pac": 68, "sho": 64, "pas": 70, "dri": 66, "def": 60, "phy": 69}
+            ovr = round(sum(attrs.values()) / 6)
+        else:
+            attrs, ovr = {}, None
+        u = {
+            "id": uid, "email": f"{phone[1:]}@otp.footbail.in",
+            "name": body.name or f"Player {phone[-4:]}",
+            "role": role, "phone": phone,
+            "position": "CM" if role == "player" else None,
+            "city": body.city or "Mumbai",
+            "password_hash": hash_pw(uuid.uuid4().hex),  # OTP-only login
+            "attributes": attrs, "overall": ovr,
+            "card_tier": "bronze" if role == "player" else None,
+            "xp": 0, "xp_to_next": 1000, "consistency": 70,
+            "stats": {"matches": 0, "goals": 0, "assists": 0, "streak": 0},
+            "phone_verified_at": now_iso(),
+            "auth_mode": "otp", "created_at": now_iso(),
+        }
+        await db.users.insert_one(u)
+    else:
+        # Mark phone verified
+        if not u.get("phone_verified_at"):
+            await db.users.update_one({"id": u["id"]}, {"$set": {"phone_verified_at": now_iso()}})
+            u["phone_verified_at"] = now_iso()
+    tok = make_token(u["id"], u["role"])
+    return {"access_token": tok, "token_type": "bearer", "user": _clean_user(dict(u))}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Module — Razorpay Test Mode (DEV-mock; real keys wire-up via env)
+# ═══════════════════════════════════════════════════════════════════════════
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET")
+RAZORPAY_DEV_MODE = not (RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET)
+# Stable mock secret used to generate verifiable signatures in dev
+_DEV_RZP_SECRET = "dev_secret_footbail_2026"
+
+
+class RzpOrderIn(BaseModel):
+    match_id: Optional[str] = None
+    turf_id: Optional[str] = None
+    amount_paise: int = Field(ge=100)
+    notes: Optional[dict] = None
+
+
+class RzpVerifyIn(BaseModel):
+    razorpay_order_id: str
+    razorpay_payment_id: str
+    razorpay_signature: str
+    booking_id: Optional[str] = None
+
+
+def _rzp_sign(order_id: str, payment_id: str) -> str:
+    """HMAC-SHA256 over `order_id|payment_id` with key secret (Razorpay docs)."""
+    secret = (RAZORPAY_KEY_SECRET or _DEV_RZP_SECRET).encode("utf-8")
+    msg = f"{order_id}|{payment_id}".encode("utf-8")
+    return hmac.new(secret, msg, hashlib.sha256).hexdigest()
+
+
+@app.post("/api/payments/razorpay/order")
+async def rzp_create_order(body: RzpOrderIn, user: dict = Depends(current_user)):
+    """Create a Razorpay order (DEV-mock unless real keys present).
+    Idempotent: if a match_id is provided and an open booking already exists for this user, returns it.
+    """
+    booking_id = str(uuid.uuid4())
+    order_id = f"order_dev_{uuid.uuid4().hex[:16]}" if RAZORPAY_DEV_MODE else None
+
+    # If real keys, attempt actual Razorpay order. Skipped here — dev only.
+    if not RAZORPAY_DEV_MODE:
+        try:
+            import httpx
+            async with httpx.AsyncClient(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET), timeout=10) as c:
+                r = await c.post("https://api.razorpay.com/v1/orders", json={
+                    "amount": body.amount_paise, "currency": "INR",
+                    "receipt": booking_id, "notes": body.notes or {},
+                })
+                r.raise_for_status()
+                order_id = r.json()["id"]
+        except Exception as e:
+            log.warning("Razorpay order creation failed: %s — falling back to dev mock", e)
+            order_id = f"order_dev_{uuid.uuid4().hex[:16]}"
+
+    booking = {
+        "id": booking_id, "user_id": user["id"], "user_name": user["name"],
+        "match_id": body.match_id, "turf_id": body.turf_id,
+        "amount_paise": body.amount_paise, "currency": "INR",
+        "razorpay_order_id": order_id, "razorpay_payment_id": None,
+        "payment_status": "pending",
+        "dev_mode": RAZORPAY_DEV_MODE,
+        "notes": body.notes or {}, "created_at": now_iso(),
+    }
+    await db.bookings.insert_one(booking)
+    return {
+        "booking_id": booking_id,
+        "order_id": order_id,
+        "amount_paise": body.amount_paise, "currency": "INR",
+        "key_id": RAZORPAY_KEY_ID or "rzp_test_dev_key",
+        "dev_mode": RAZORPAY_DEV_MODE,
+    }
+
+
+@app.post("/api/payments/razorpay/verify")
+async def rzp_verify(body: RzpVerifyIn, user: dict = Depends(current_user)):
+    """Verify HMAC-SHA256 signature, mark booking paid. DEV-mock signature acceptance enabled."""
+    expected = _rzp_sign(body.razorpay_order_id, body.razorpay_payment_id)
+    if not hmac.compare_digest(expected, body.razorpay_signature):
+        raise HTTPException(400, "Invalid payment signature")
+
+    booking = await db.bookings.find_one({"razorpay_order_id": body.razorpay_order_id, "user_id": user["id"]})
+    if not booking:
+        raise HTTPException(404, "Booking not found")
+    if booking["payment_status"] == "paid":
+        return {k: v for k, v in booking.items() if k != "_id"}
+    qr_token = uuid.uuid4().hex
+    await db.bookings.update_one(
+        {"id": booking["id"]},
+        {"$set": {
+            "payment_status": "paid",
+            "razorpay_payment_id": body.razorpay_payment_id,
+            "razorpay_signature": body.razorpay_signature,
+            "paid_at": now_iso(),
+            "qr_token": qr_token,
+        }},
+    )
+    booking.update({
+        "payment_status": "paid", "razorpay_payment_id": body.razorpay_payment_id,
+        "qr_token": qr_token,
+    })
+    return {k: v for k, v in booking.items() if k != "_id"}
+
+
+@app.post("/api/payments/razorpay/dev-sign")
+async def rzp_dev_sign(payload: dict, user: dict = Depends(current_user)):
+    """DEV-only helper. Frontend posts {order_id, payment_id} → server returns the HMAC sig.
+    In production, the signature would come from Razorpay Checkout's success handler — never the server."""
+    if not RAZORPAY_DEV_MODE:
+        raise HTTPException(403, "Dev signing is disabled in production mode")
+    order_id = payload.get("order_id"); payment_id = payload.get("payment_id") or f"pay_dev_{uuid.uuid4().hex[:16]}"
+    if not order_id:
+        raise HTTPException(422, "order_id is required")
+    return {
+        "razorpay_order_id": order_id,
+        "razorpay_payment_id": payment_id,
+        "razorpay_signature": _rzp_sign(order_id, payment_id),
+    }
+
+
+@app.get("/api/bookings/me")
+async def my_bookings(user: dict = Depends(current_user)):
+    rows = await db.bookings.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return rows
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Module — Gemini Nano Banana Player Avatar
+# ═══════════════════════════════════════════════════════════════════════════
+class AvatarGenIn(BaseModel):
+    style: Optional[str] = "fifa-card"   # fifa-card | anime | realistic
+
+
+@app.post("/api/players/avatar")
+async def player_avatar_generate(body: AvatarGenIn, user: dict = Depends(current_user)):
+    """Generate (or regenerate) a stylised player avatar via Gemini Nano Banana.
+       Returns the image as a data URL the frontend can render directly."""
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(503, "AI image generation unavailable (no LLM key)")
+    if user["role"] not in {"player", "coach"}:
+        raise HTTPException(403, "Avatar generation is for players and coaches only")
+
+    city_subtitle = CITY_THEMES_BACKEND.get(user.get("city", "Mumbai"), {}).get("subtitle", "")
+    position = user.get("position") or "CM"
+    tier = user.get("card_tier") or "bronze"
+    style = (body.style or "fifa-card").lower()
+
+    style_hint = {
+        "fifa-card": "FIFA-style ultimate-team card portrait, hyper-clean studio lighting, dramatic spotlight, head-and-shoulders shot.",
+        "anime":     "anime-inspired character portrait, bold cel-shading, dramatic eyes, sports uniform.",
+        "realistic": "photoreal portrait, action sports photography, natural daylight, shallow depth of field.",
+    }.get(style, "FIFA-style portrait")
+
+    prompt = (
+        f"Square 1:1 stylised football player portrait. "
+        f"{style_hint} "
+        f"Player position: {position}. Tier accent: {tier}. "
+        f"Subtle background reference: '{city_subtitle}' aesthetic, dark navy gradient (#0A0F1E → #1C2333). "
+        f"No text, no logos, no watermarks. Strong focus on the player's face. "
+        f"Render a fictional Indian player, age 22-28, athletic build, jersey color in the city accent."
+    )
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"avatar-{user['id']}-{uuid.uuid4().hex[:8]}",
+            system_message="You generate clean stylised football-player portraits.",
+        ).with_model("gemini", "gemini-3.1-flash-image-preview").with_params(modalities=["image", "text"])
+        text, images = await asyncio.wait_for(
+            chat.send_message_multimodal_response(UserMessage(text=prompt)),
+            timeout=45,
+        )
+        if not images:
+            raise HTTPException(502, "Avatar service returned no image")
+        img = images[0]
+        mime = img.get("mime_type", "image/png")
+        data_url = f"data:{mime};base64,{img['data']}"
+        await db.users.update_one({"id": user["id"]},
+                                  {"$set": {"avatar_url": data_url, "avatar_style": style,
+                                            "avatar_generated_at": now_iso()}})
+        return {"avatar_url": data_url, "style": style}
+    except asyncio.TimeoutError:
+        raise HTTPException(504, "Avatar generation timed out")
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.warning("Avatar gen failed: %s", e)
+        raise HTTPException(502, f"Avatar generation failed: {e}")
+
+
+@app.get("/api/players/me/avatar")
+async def my_avatar(user: dict = Depends(current_user)):
+    u = await db.users.find_one({"id": user["id"]}, {"_id": 0, "avatar_url": 1, "avatar_style": 1, "avatar_generated_at": 1})
+    return u or {}

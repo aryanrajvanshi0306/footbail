@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { ArrowRight, Check } from 'lucide-react';
 import { api } from '../lib/api';
 import { fmtINR } from '../lib/constants';
+import RazorpayMockCheckout from '../components/RazorpayMockCheckout';
 
 const TEAMS = ['FC Powai', 'Andheri United', 'BKC Strikers', 'Bandra Boys', 'Mumbai XI'];
 
@@ -12,6 +13,8 @@ export default function CreateMatch() {
   const [step, setStep] = useState(1);
   const [data, setData] = useState({ home_team: '', away_team: '', turf_id: '', slot: '', format: '5v5' });
   const [turfs, setTurfs] = useState([]);
+  const [payOpen, setPayOpen] = useState(false);
+  const [paidBooking, setPaidBooking] = useState(null);
 
   useEffect(() => { api.get('/turfs').then((r) => setTurfs(r.data)); }, []);
 
@@ -131,13 +134,40 @@ export default function CreateMatch() {
       {step === 4 && (
         <div className="space-y-3" data-testid="step-pay">
           <div className="bg-bg-card border border-line p-4">
-            <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted">Payment</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted">Payment · Razorpay Test Mode</div>
             <div className="font-display text-3xl mt-1">{fmtINR(turfs.find((t) => t.id === data.turf_id)?.price_per_slot || 0)}</div>
-            <div className="text-sm text-ink-muted">UPI / Card / Netbanking via Razorpay (mocked in MVP)</div>
+            <div className="text-sm text-ink-muted">UPI / Card / Netbanking · DEV-mock signed (HMAC-SHA256)</div>
+            {paidBooking && (
+              <div data-testid="paid-confirm" className="mt-3 px-3 py-2 bg-accent-green/10 border border-accent-green text-accent-green text-xs font-mono uppercase tracking-widest flex items-center gap-2">
+                <Check className="w-4 h-4"/> Paid · QR {paidBooking.qr_token?.slice(0, 8)}…
+              </div>
+            )}
           </div>
-          <button data-testid="mock-pay-btn" onClick={() => setStep(5)} className="w-full bg-accent-amber text-black font-bold h-12 font-display text-xl tracking-widest uppercase hover:opacity-90">
-            Pay Now (Mock)
-          </button>
+          {!paidBooking ? (
+            <button
+              data-testid="open-razorpay-btn"
+              onClick={() => setPayOpen(true)}
+              className="w-full bg-accent-amber text-black font-bold h-12 font-display text-xl tracking-widest uppercase hover:opacity-90"
+            >
+              Pay Now
+            </button>
+          ) : (
+            <button
+              data-testid="step4-next"
+              onClick={() => setStep(5)}
+              className="w-full bg-accent-green text-black font-bold h-12 font-display text-xl tracking-widest uppercase hover:bg-[#00C853]"
+            >
+              Continue →
+            </button>
+          )}
+          <RazorpayMockCheckout
+            open={payOpen}
+            onClose={() => setPayOpen(false)}
+            amountPaise={turfs.find((t) => t.id === data.turf_id)?.price_per_slot || 0}
+            turfId={data.turf_id}
+            notes={{ home_team: data.home_team, away_team: data.away_team, slot: data.slot }}
+            onSuccess={(b) => { setPaidBooking(b); setPayOpen(false); setStep(5); }}
+          />
         </div>
       )}
 

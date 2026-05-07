@@ -86,3 +86,22 @@ async def root() -> dict:
 # Routes for Layer 2+ are imported here later, e.g.:
 #   from app.api.v2 import auth, users, matches, ...
 #   app.include_router(auth.router, prefix="/v2/auth", tags=["auth"])
+
+# Layer 2-5 routers
+from app.routers import auth as auth_router
+from app.routers import players as players_router
+from app.routers import matches as matches_router
+from app.routers import pre_match as pre_match_router
+from app.routers import stories as stories_router
+from app.routers import oyp as oyp_router
+from app.routers import cv as cv_router
+from app.routers import turfs as turfs_router
+
+app.include_router(auth_router.router)
+app.include_router(players_router.router)
+app.include_router(matches_router.router)
+app.include_router(pre_match_router.router)
+app.include_router(stories_router.router)
+app.include_router(oyp_router.router)
+app.include_router(cv_router.router)
+app.include_router(turfs_router.router)

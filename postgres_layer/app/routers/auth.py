@@ -42,6 +42,7 @@ class VerifyOtpIn(BaseModel):
     otp: str = Field(min_length=6, max_length=6)
 
 class CompleteProfileIn(BaseModel):
+    onboarding_token: str
     full_name: str = Field(min_length=2, max_length=120)
     city: str
     date_of_birth: Optional[str] = None
@@ -147,14 +148,13 @@ async def verify_otp_route(
 @router.post("/complete-profile")
 async def complete_profile_route(
     body: CompleteProfileIn,
-    onboarding_token: str = Body(..., embed=True),
     db: AsyncSession = Depends(get_db),
     cache: CacheClient = Depends(get_cache),
 ):
     if body.role == "admin":   # belt-and-suspenders — Literal already excludes
         raise HTTPException(403, "Admin role cannot self-register")
     try:
-        payload = decode_token(onboarding_token, expected_type="onboarding")
+        payload = decode_token(body.onboarding_token, expected_type="onboarding")
     except ValueError as e:
         raise HTTPException(401, str(e))
     phone: str = payload["sub"]

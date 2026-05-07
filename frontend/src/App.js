@@ -21,6 +21,7 @@ import LiveBroadcast from './pages/LiveBroadcast';
 import MatchAnalysis from './pages/MatchAnalysis';
 import MatchBrief from './pages/MatchBrief';
 import CityDerby from './pages/CityDerby';
+import CoachLanding from './pages/CoachLanding';
 import AppShell from './components/AppShell';
 
 function Protected({ children, roles }) {
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/explore/derby" element={<CityDerby />} />
           <Route path="/explore/:section" element={<ExploreSection />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/coach/onboard" element={<CoachLanding />} />
         </Route>
 
         {/* Broadcast & analysis (public-ish, uses login) */}

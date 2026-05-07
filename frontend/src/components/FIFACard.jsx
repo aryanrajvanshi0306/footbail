@@ -5,7 +5,7 @@ import { TIER_CLASSES } from '../lib/constants';
  * FIFA-style Player Card
  * Props: overall, position, name, attributes {pac,sho,pas,dri,def,phy}, tier, avatarLetter
  */
-export default function FIFACard({ overall = 74, position = 'CM', name = 'Arjun', attributes = {}, tier = 'silver', size = 'md' }) {
+export default function FIFACard({ overall = 74, position = 'CM', name = 'Arjun', attributes = {}, tier = 'silver', size = 'md', avatarUrl = null, cityRing = false }) {
   const attrs = { pac: 76, sho: 71, pas: 79, dri: 74, def: 68, phy: 77, ...(attributes || {}) };
   const cls = TIER_CLASSES[tier] || TIER_CLASSES.silver;
   const sizes = {
@@ -16,7 +16,7 @@ export default function FIFACard({ overall = 74, position = 'CM', name = 'Arjun'
   return (
     <div
       data-testid="fifa-card"
-      className={`relative overflow-hidden ${cls} ${sizes[size]} border border-black/20`}
+      className={`relative overflow-hidden ${cls} ${sizes[size]} border border-black/20 ${cityRing ? 'city-ring' : ''}`}
     >
       {/* shine overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 pointer-events-none" />
@@ -28,9 +28,18 @@ export default function FIFACard({ overall = 74, position = 'CM', name = 'Arjun'
         <div className="font-mono text-[10px] uppercase tracking-widest opacity-70">{tier}</div>
       </div>
       <div className="relative my-2 flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full bg-black/25 flex items-center justify-center font-display text-3xl leading-none">
-          {(name?.[0] || 'A').toUpperCase()}
-        </div>
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt="avatar"
+            data-testid="card-avatar-img"
+            className="w-16 h-16 rounded-full object-cover ring-2 ring-black/30"
+          />
+        ) : (
+          <div className="w-16 h-16 rounded-full bg-black/25 flex items-center justify-center font-display text-3xl leading-none">
+            {(name?.[0] || 'A').toUpperCase()}
+          </div>
+        )}
       </div>
       <div className="relative text-center font-display tracking-widest text-sm truncate" data-testid="card-name">
         {name?.toUpperCase?.()}

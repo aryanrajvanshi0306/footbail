@@ -22,7 +22,7 @@ export default function Register() {
       const r = await api.post('/auth/register', body);
       saveAuth(r.data.access_token, r.data.user);
       toast.success(`Welcome, ${r.data.user.name}!`);
-      nav('/home');
+      nav(r.data.user.role === 'coach' ? '/coach/onboard' : '/home');
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Registration failed');
     } finally {

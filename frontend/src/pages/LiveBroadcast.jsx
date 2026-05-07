@@ -1,22 +1,85 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, Radio, Tv } from 'lucide-react';
+import { ChevronLeft, Eye } from 'lucide-react';
 import { api } from '../lib/api';
 import { EVENT_META } from '../lib/constants';
 
+/** Build wss:// URL from REACT_APP_BACKEND_URL (https → wss, http → ws). */
+function wsUrl(matchId) {
+  const base = process.env.REACT_APP_BACKEND_URL || '';
+  return `${base.replace(/^http/, 'ws')}/api/ws/match/${matchId}`;
+}
+
 export default function LiveBroadcast() {
   const { id } = useParams();
-  const [data, setData] = useState(null);
+  const [match, setMatch] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [viewers, setViewers] = useState(1);
+  const [conn, setConn] = useState('connecting');   // connecting | open | closed
+  const wsRef = useRef(null);
+  const heartbeatRef = useRef(null);
+  const reconnectRef = useRef(null);
 
-  const load = () => api.get(`/matches/${id}/broadcast`).then((r) => setData(r.data));
+  const cleanup = () => {
+    if (heartbeatRef.current) { clearInterval(heartbeatRef.current); heartbeatRef.current = null; }
+    if (reconnectRef.current) { clearTimeout(reconnectRef.current); reconnectRef.current = null; }
+    if (wsRef.current) { try { wsRef.current.close(); } catch(_){} wsRef.current = null; }
+  };
+
+  const connect = () => {
+    setConn('connecting');
+    const ws = new WebSocket(wsUrl(id));
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      setConn('open');
+      heartbeatRef.current = setInterval(() => {
+        try { ws.send(JSON.stringify({ type: 'ping' })); } catch (_) {}
+      }, 25000);
+    };
+
+    ws.onmessage = (msg) => {
+      try {
+        const data = JSON.parse(msg.data);
+        if (data.type === 'snapshot') {
+          setMatch(data.match);
+          setEvents((data.events || []).slice().reverse()); // newest first in UI
+          setViewers(data.viewers ?? 1);
+        } else if (data.type === 'event') {
+          setEvents((prev) => [data.event, ...prev].slice(0, 200));
+          if (data.score) setMatch((m) => m ? { ...m, score: data.score } : m);
+          if (typeof data.viewers === 'number') setViewers(data.viewers);
+        } else if (data.type === 'viewers') {
+          setViewers(data.viewers ?? 1);
+        } else if (data.type === 'match_complete') {
+          setMatch((m) => m ? { ...m, status: 'complete', broadcast_active: false } : m);
+        }
+      } catch (_) { /* ignore */ }
+    };
+
+    ws.onclose = () => {
+      setConn('closed');
+      if (heartbeatRef.current) { clearInterval(heartbeatRef.current); heartbeatRef.current = null; }
+      // Auto-reconnect with backoff (3s)
+      reconnectRef.current = setTimeout(connect, 3000);
+    };
+
+    ws.onerror = () => {
+      // onclose will follow and trigger reconnect
+    };
+  };
+
   useEffect(() => {
-    load();
-    const t = setInterval(load, 3000); // poll
-    return () => clearInterval(t);
+    // Initial fetch as fallback in case WS handshake is slow
+    api.get(`/matches/${id}/broadcast`).then((r) => {
+      setMatch(r.data.match);
+      setEvents(r.data.events || []);
+    }).catch(() => {});
+    connect();
+    return cleanup;
   }, [id]);
 
-  if (!data) return <div className="p-8 text-ink-muted bg-black min-h-screen">Loading broadcast…</div>;
-  const { match, events } = data;
+  if (!match) return <div className="p-8 text-ink-muted bg-black min-h-screen">Loading broadcast…</div>;
 
   return (
     <div className="min-h-screen bg-black" data-testid="live-broadcast-page">
@@ -25,9 +88,16 @@ export default function LiveBroadcast() {
           <Link to="/home" data-testid="back-home" className="font-mono text-[10px] uppercase tracking-widest text-ink-muted hover:text-white flex items-center gap-1">
             <ChevronLeft className="w-3 h-3" /> Home
           </Link>
-          <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest">
+          <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest">
+            <div data-testid="ws-conn-status" className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${conn === 'open' ? 'bg-accent-green animate-pulse' : conn === 'closed' ? 'bg-accent-red' : 'bg-accent-amber animate-pulse'}`} />
+              <span className="text-[10px] text-ink-muted">{conn === 'open' ? 'WS LIVE' : conn === 'closed' ? 'RECONNECTING' : 'CONNECTING'}</span>
+            </div>
+            <div className="flex items-center gap-1 text-accent-amber" data-testid="ws-viewer-count">
+              <Eye className="w-3 h-3"/> {viewers}
+            </div>
             {match.status === 'live' ? (
-              <><span className="w-2 h-2 bg-accent-green text-black font-bold rounded-full animate-pulse" /><span className="text-accent-green">LIVE</span></>
+              <><span className="w-2 h-2 bg-accent-green rounded-full animate-pulse" /><span className="text-accent-green">LIVE</span></>
             ) : match.status === 'complete' ? (
               <span className="text-ink-muted">FULL TIME</span>
             ) : (
@@ -68,7 +138,7 @@ export default function LiveBroadcast() {
           ))}
           {match.status === 'live' && (
             <div className="absolute top-2 left-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest">
-              <span className="w-2 h-2 rounded-full bg-accent-green text-black font-bold animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-accent-green animate-pulse" />
               <span className="text-accent-green">LIVE</span>
               <span className="text-ink-muted">| TURF CAM 01</span>
             </div>
@@ -95,7 +165,7 @@ export default function LiveBroadcast() {
 
         {/* Events feed */}
         <div data-testid="bcast-events-list">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-2">LIVE EVENTS</div>
+          <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-2">LIVE EVENTS · WEBSOCKET</div>
           <div className="space-y-1">
             {events?.length === 0 && <div className="text-ink-muted text-sm py-4">No events yet.</div>}
             {events?.map((e) => {

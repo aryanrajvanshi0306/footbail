@@ -1,11 +1,34 @@
 import React, { useEffect, useState } from 'react';
+import { Sparkles, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { api, getUser } from '../lib/api';
 import FIFACard from '../components/FIFACard';
 
 export default function Profile() {
   const [me, setMe] = useState(getUser());
+  const [genBusy, setGenBusy] = useState(false);
   useEffect(() => { api.get('/auth/me').then((r) => setMe(r.data)).catch(() => {}); }, []);
   if (!me) return null;
+
+  const regenerateAvatar = async () => {
+    setGenBusy(true);
+    try {
+      const r = await api.post('/players/avatar', { style: 'fifa-card' });
+      setMe((m) => ({ ...m, avatar_url: r.data.avatar_url }));
+      // mirror into localStorage user so other screens see it
+      try {
+        const cached = JSON.parse(localStorage.getItem('fb_user') || 'null');
+        if (cached) {
+          localStorage.setItem('fb_user', JSON.stringify({ ...cached, avatar_url: r.data.avatar_url }));
+        }
+      } catch (_) {}
+      toast.success('Avatar regenerated');
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || 'Avatar generation failed');
+    } finally {
+      setGenBusy(false);
+    }
+  };
 
   return (
     <div className="px-4 pt-4 pb-24" data-testid="profile-page">
@@ -23,7 +46,18 @@ export default function Profile() {
             attributes={me.attributes}
             tier={me.card_tier || 'silver'}
             size="lg"
+            avatarUrl={me.avatar_url}
+            cityRing
           />
+          <button
+            data-testid="regenerate-avatar-btn"
+            onClick={regenerateAvatar}
+            disabled={genBusy}
+            className="mt-3 px-3 py-2 border border-line text-xs font-mono uppercase tracking-widest hover:border-accent-purple hover:text-accent-purple transition-colors flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {genBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+            {genBusy ? 'Generating…' : (me.avatar_url ? 'Regenerate Avatar (AI)' : 'Generate Avatar (AI)')}
+          </button>
           <div className="font-display text-3xl mt-3">{me.name?.toUpperCase()}</div>
           <div className="font-mono text-xs uppercase tracking-widest text-accent-amber">{me.position} · {me.city}</div>
 
