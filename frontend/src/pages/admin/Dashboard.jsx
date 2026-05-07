@@ -14,15 +14,15 @@ export default function AdminDashboard() {
       <header className="border-b border-line">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-brand-primary flex items-center justify-center font-display text-2xl leading-none">f</div>
+            <div className="w-9 h-9 bg-accent-green text-black font-bold flex items-center justify-center font-display text-2xl leading-none">f</div>
             <div>
               <div className="font-display text-2xl tracking-wider">FOOTBAIL · CONTROL ROOM</div>
               <div className="font-mono text-[10px] text-ink-muted uppercase tracking-widest">{me?.name} · ADMIN</div>
             </div>
           </div>
           <div className="flex gap-2">
-            <Link to="/home" data-testid="admin-to-app" className="border border-line px-3 h-9 inline-flex items-center font-mono uppercase text-xs tracking-widest hover:border-brand-primary">App View</Link>
-            <button onClick={logout} className="border border-line px-3 h-9 font-mono uppercase text-xs tracking-widest hover:border-brand-primary">Logout</button>
+            <Link to="/home" data-testid="admin-to-app" className="border border-line px-3 h-9 inline-flex items-center font-mono uppercase text-xs tracking-widest hover:border-accent-green">App View</Link>
+            <button onClick={logout} className="border border-line px-3 h-9 font-mono uppercase text-xs tracking-widest hover:border-accent-green">Logout</button>
           </div>
         </div>
       </header>
@@ -84,9 +84,9 @@ function ActionCard({ to, title, subtitle, icon: Icon, highlight, testid }) {
     <Link
       data-testid={testid}
       to={to}
-      className={`block p-5 border ${highlight ? 'border-brand-primary bg-brand-primary/10 hover:bg-brand-primary/20' : 'border-line bg-bg-card hover:border-brand-primary'} transition-colors`}
+      className={`block p-5 border ${highlight ? 'border-accent-green bg-accent-green text-black/10 hover:bg-accent-green text-black/20' : 'border-line bg-bg-card hover:border-accent-green'} transition-colors`}
     >
-      <Icon className="w-7 h-7 mb-3 text-brand-primary" />
+      <Icon className="w-7 h-7 mb-3 text-accent-green" />
       <div className="font-display text-2xl tracking-wider">{title}</div>
       <div className="text-xs text-ink-muted mt-1">{subtitle}</div>
       <div className="flex justify-end mt-3"><ArrowRight className="w-4 h-4" /></div>

@@ -36,7 +36,7 @@ export default function AdminUsers() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/admin" data-testid="back-to-admin" className="font-mono text-[10px] uppercase tracking-widest text-ink-muted flex items-center gap-1 hover:text-white"><ChevronLeft className="w-3 h-3" /> Control Room</Link>
           <div className="font-display text-2xl tracking-wider">USERS</div>
-          <button data-testid="create-user-btn" onClick={() => setShowForm(true)} className="bg-brand-primary px-3 h-9 inline-flex items-center gap-1 font-mono uppercase text-xs tracking-widest hover:bg-[#D63026]">
+          <button data-testid="create-user-btn" onClick={() => setShowForm(true)} className="bg-accent-green text-black font-bold px-3 h-9 inline-flex items-center gap-1 font-mono uppercase text-xs tracking-widest hover:bg-[#00C853]">
             <UserPlus className="w-4 h-4" /> Create
           </button>
         </div>
@@ -45,7 +45,7 @@ export default function AdminUsers() {
       <main className="max-w-6xl mx-auto px-6 py-6">
         <div className="flex gap-2 mb-4 flex-wrap" data-testid="user-filters">
           {['', 'player', 'coach', 'referee', 'turf_owner', 'admin'].map((r) => (
-            <button key={r} data-testid={`filter-${r || 'all'}`} onClick={() => setFilter(r)} className={`px-3 h-9 font-mono text-[10px] uppercase tracking-widest ${filter === r ? 'bg-brand-primary text-white' : 'border border-line hover:border-brand-primary'}`}>
+            <button key={r} data-testid={`filter-${r || 'all'}`} onClick={() => setFilter(r)} className={`px-3 h-9 font-mono text-[10px] uppercase tracking-widest ${filter === r ? 'bg-accent-green text-black font-bold' : 'border border-line hover:border-accent-green'}`}>
               {r || 'All'}
             </button>
           ))}
@@ -81,18 +81,18 @@ export default function AdminUsers() {
           <form onSubmit={submit} className="bg-bg-card border border-line w-full max-w-md p-6">
             <div className="font-display text-2xl mb-4">CREATE USER</div>
             <div className="space-y-3">
-              <select data-testid="cu-role" value={form.role} onChange={(e) => setForm({...form, role: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-brand-primary">
+              <select data-testid="cu-role" value={form.role} onChange={(e) => setForm({...form, role: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-accent-green">
                 <option value="turf_owner">Turf Owner</option>
                 <option value="referee">Referee</option>
               </select>
-              <input data-testid="cu-name" placeholder="Full name" required value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-brand-primary" />
-              <input data-testid="cu-email" type="email" placeholder="Email" required value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-brand-primary" />
-              <input data-testid="cu-phone" placeholder="Phone (optional)" value={form.phone} onChange={(e) => setForm({...form, phone: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-brand-primary" />
-              <input data-testid="cu-password" type="password" placeholder="Password (min 4)" required value={form.password} onChange={(e) => setForm({...form, password: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-brand-primary" />
+              <input data-testid="cu-name" placeholder="Full name" required value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-accent-green" />
+              <input data-testid="cu-email" type="email" placeholder="Email" required value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-accent-green" />
+              <input data-testid="cu-phone" placeholder="Phone (optional)" value={form.phone} onChange={(e) => setForm({...form, phone: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-accent-green" />
+              <input data-testid="cu-password" type="password" placeholder="Password (min 4)" required value={form.password} onChange={(e) => setForm({...form, password: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-accent-green" />
             </div>
             <div className="flex gap-2 mt-4">
               <button data-testid="cu-cancel" type="button" onClick={() => setShowForm(false)} className="flex-1 border border-line h-12 font-mono uppercase tracking-widest hover:border-white">Cancel</button>
-              <button data-testid="cu-submit" type="submit" className="flex-1 bg-brand-primary h-12 font-display text-xl tracking-widest uppercase hover:bg-[#D63026]">Create</button>
+              <button data-testid="cu-submit" type="submit" className="flex-1 bg-accent-green text-black font-bold h-12 font-display text-xl tracking-widest uppercase hover:bg-[#00C853]">Create</button>
             </div>
           </form>
         </div>

@@ -22,15 +22,15 @@ export default function Matches() {
         <button
           data-testid="create-match-btn"
           onClick={() => nav('/matches/create')}
-          className="flex items-center gap-1 bg-brand-primary px-3 h-10 font-mono text-xs uppercase tracking-widest hover:bg-[#D63026]"
+          className="flex items-center gap-1 bg-accent-green text-black font-bold px-3 h-10 font-mono text-xs uppercase tracking-widest hover:bg-[#00C853]"
         >
           <Plus className="w-4 h-4" /> Create
         </button>
       </div>
 
       <div className="flex border border-line mb-4" data-testid="match-tabs">
-        <button data-testid="tab-scheduled" onClick={() => setTab('scheduled')} className={`flex-1 h-10 font-mono uppercase text-xs tracking-widest ${tab === 'scheduled' ? 'bg-brand-primary text-white' : 'text-ink-muted'}`}>Scheduled</button>
-        <button data-testid="tab-past" onClick={() => setTab('past')} className={`flex-1 h-10 font-mono uppercase text-xs tracking-widest ${tab === 'past' ? 'bg-brand-primary text-white' : 'text-ink-muted'}`}>Past</button>
+        <button data-testid="tab-scheduled" onClick={() => setTab('scheduled')} className={`flex-1 h-10 font-mono uppercase text-xs tracking-widest ${tab === 'scheduled' ? 'bg-accent-green text-black font-bold' : 'text-ink-muted'}`}>Scheduled</button>
+        <button data-testid="tab-past" onClick={() => setTab('past')} className={`flex-1 h-10 font-mono uppercase text-xs tracking-widest ${tab === 'past' ? 'bg-accent-green text-black font-bold' : 'text-ink-muted'}`}>Past</button>
       </div>
 
       {filtered.length === 0 && (
@@ -45,10 +45,10 @@ export default function Matches() {
             key={m.id}
             data-testid={`match-${m.id}`}
             onClick={() => nav(`/matches/${m.id}`)}
-            className="w-full text-left bg-bg-card border border-line p-4 hover:border-brand-primary"
+            className="w-full text-left bg-bg-card border border-line p-4 hover:border-accent-green"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className={`font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 ${m.status === 'live' ? 'bg-brand-primary text-white animate-pulse-red' : m.status === 'complete' ? 'bg-bg-elevated text-ink-muted' : 'bg-brand-accent text-black'}`}>
+              <span className={`font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 ${m.status === 'live' ? 'bg-accent-red text-black font-bold animate-pulse-red' : m.status === 'complete' ? 'bg-bg-elevated text-ink-muted' : 'bg-accent-amber text-black font-bold'}`}>
                 {m.status}
               </span>
               <span className="font-mono text-xs text-ink-muted">{m.format}</span>
@@ -61,7 +61,7 @@ export default function Matches() {
                 {m.status === 'complete' ? (
                   <div className="font-mono font-bold text-2xl">{m.score?.home} <span className="text-ink-muted">:</span> {m.score?.away}</div>
                 ) : (
-                  <div className="font-mono text-xs text-brand-accent">VS</div>
+                  <div className="font-mono text-xs text-accent-amber">VS</div>
                 )}
               </div>
               <div className="text-left">

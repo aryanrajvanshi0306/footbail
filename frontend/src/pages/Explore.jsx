@@ -29,7 +29,7 @@ export default function Explore() {
             key={key}
             data-testid={`explore-${key}`}
             onClick={() => nav(`/explore/${key}`)}
-            className="aspect-square bg-bg-card border border-line flex flex-col items-center justify-center gap-2 hover:border-brand-primary group transition-colors p-3"
+            className="aspect-square bg-bg-card border border-line flex flex-col items-center justify-center gap-2 hover:border-accent-green group transition-colors p-3"
           >
             <Icon className="w-7 h-7 transition-transform group-hover:scale-110" style={{ color }} />
             <span className="font-display text-base tracking-wider">{label.toUpperCase()}</span>
@@ -38,7 +38,7 @@ export default function Explore() {
       </div>
 
       <div className="mt-6 bg-bg-card border border-line p-4" data-testid="explore-banner">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-brand-accent">FEATURED</div>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-accent-amber">FEATURED</div>
         <div className="font-display text-2xl mt-1">MUMBAI MONSOON CUP 2026</div>
         <div className="text-sm text-ink-muted mt-1">8 teams · ₹1,50,000 prize pool · Registrations open till 30 Jun</div>
       </div>

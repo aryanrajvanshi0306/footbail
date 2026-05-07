@@ -21,7 +21,7 @@ export default function Feed() {
 
       <div className="flex gap-2 mt-3 mb-4 overflow-x-auto" data-testid="feed-filters">
         {['All', 'Friends', 'My City', 'My Turfs', 'AI Insights'].map((f) => (
-          <button key={f} className="px-3 py-1.5 border border-line font-mono text-[10px] uppercase tracking-widest hover:border-brand-primary whitespace-nowrap">
+          <button key={f} className="px-3 py-1.5 border border-line font-mono text-[10px] uppercase tracking-widest hover:border-accent-green whitespace-nowrap">
             {f}
           </button>
         ))}

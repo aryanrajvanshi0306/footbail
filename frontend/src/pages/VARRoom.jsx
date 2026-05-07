@@ -106,19 +106,19 @@ export default function VARRoom() {
           </Link>
           <div className="flex-1 flex items-center justify-center gap-6">
             <div className="text-right font-display text-2xl">{match.home_team.toUpperCase()}</div>
-            <div className="font-mono font-bold text-3xl text-brand-accent" data-testid="var-score">{match.score?.home || 0} : {match.score?.away || 0}</div>
+            <div className="font-mono font-bold text-3xl text-accent-amber" data-testid="var-score">{match.score?.home || 0} : {match.score?.away || 0}</div>
             <div className="text-left font-display text-2xl">{match.away_team.toUpperCase()}</div>
           </div>
           <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest">
             {isLive ? (
               <>
-                <span className="w-2 h-2 bg-brand-primary rounded-full animate-pulse" />
-                <span className="text-brand-primary" data-testid="var-status">ON-AIR · {minutes}'</span>
+                <span className="w-2 h-2 bg-accent-green text-black font-bold rounded-full animate-pulse" />
+                <span className="text-accent-green" data-testid="var-status">ON-AIR · {minutes}'</span>
               </>
             ) : isComplete ? (
               <span className="text-ink-muted" data-testid="var-status">FULL TIME</span>
             ) : (
-              <span className="text-brand-accent" data-testid="var-status">STANDBY</span>
+              <span className="text-accent-amber" data-testid="var-status">STANDBY</span>
             )}
           </div>
         </div>
@@ -159,7 +159,7 @@ export default function VARRoom() {
               <div className="absolute inset-0 overflow-hidden" data-testid="ai-scan-overlay">
                 <div className="camera-scan absolute left-0 right-0 animate-scan" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="font-mono text-brand-primary text-xs uppercase tracking-widest border border-brand-primary px-3 py-1 bg-black/50">
+                  <div className="font-mono text-accent-green text-xs uppercase tracking-widest border border-accent-green px-3 py-1 bg-black/50">
                     <ScanLine className="w-3 h-3 inline mr-1" />AI Analysis · YOLO v9
                   </div>
                 </div>
@@ -170,7 +170,7 @@ export default function VARRoom() {
             {!isLive && !isComplete && !scanning && (
               <div className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center">
                 <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-2">CAMERA IDLE</div>
-                <button data-testid="start-camera-btn" onClick={startCamera} className="bg-brand-primary px-6 h-12 font-display text-xl tracking-widest uppercase hover:bg-[#D63026] flex items-center gap-2">
+                <button data-testid="start-camera-btn" onClick={startCamera} className="bg-accent-green text-black font-bold px-6 h-12 font-display text-xl tracking-widest uppercase hover:bg-[#00C853] flex items-center gap-2">
                   <Power className="w-5 h-5" /> Start Camera & Match
                 </button>
                 <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mt-3">Camera will auto-start at turf · Live broadcast enabled</div>
@@ -180,9 +180,9 @@ export default function VARRoom() {
             {/* Complete overlay */}
             {isComplete && (
               <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center" data-testid="camera-stopped">
-                <div className="font-display text-5xl text-brand-accent">FULL TIME</div>
+                <div className="font-display text-5xl text-accent-amber">FULL TIME</div>
                 <div className="font-mono text-xs uppercase tracking-widest text-ink-muted mt-2">Camera stopped · Recording archived</div>
-                <button data-testid="goto-analysis-btn" onClick={() => nav(`/match/${id}/analysis`)} className="mt-4 bg-brand-accent text-black px-6 h-12 font-display text-xl tracking-widest uppercase hover:opacity-90 flex items-center gap-2">
+                <button data-testid="goto-analysis-btn" onClick={() => nav(`/match/${id}/analysis`)} className="mt-4 bg-accent-amber text-black font-bold px-6 h-12 font-display text-xl tracking-widest uppercase hover:opacity-90 flex items-center gap-2">
                   <BarChart3 className="w-5 h-5" /> View Performance Analysis
                 </button>
               </div>
@@ -191,14 +191,14 @@ export default function VARRoom() {
             {/* HUD */}
             {isLive && (
               <div className="absolute top-2 left-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest" data-testid="live-hud">
-                <span className="w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
-                <span className="text-brand-primary">REC</span>
+                <span className="w-2 h-2 rounded-full bg-accent-green text-black font-bold animate-pulse" />
+                <span className="text-accent-green">REC</span>
                 <span className="text-ink-muted">|</span>
                 <span>{minutes.toString().padStart(2, '0')}:{(matchTime % 60).toString().padStart(2, '0')}</span>
               </div>
             )}
             {isLive && (
-              <div className="absolute top-2 right-2 font-mono text-[10px] uppercase tracking-widest text-brand-accent flex items-center gap-1">
+              <div className="absolute top-2 right-2 font-mono text-[10px] uppercase tracking-widest text-accent-amber flex items-center gap-1">
                 <Radio className="w-3 h-3" /> LIVE BROADCAST
               </div>
             )}
@@ -209,7 +209,7 @@ export default function VARRoom() {
             <div className="mt-6" data-testid="var-controls">
               <div className="flex items-center gap-2 mb-3">
                 <span className="font-mono text-[10px] uppercase tracking-widest text-ink-muted">ACTIVE TEAM</span>
-                <button data-testid="pick-home-team" onClick={() => setTeam(match.home_team)} className={`px-3 py-1 font-mono text-[10px] uppercase tracking-widest border ${team === match.home_team ? 'border-brand-primary bg-brand-primary text-white' : 'border-line text-ink-muted'}`}>{match.home_team}</button>
+                <button data-testid="pick-home-team" onClick={() => setTeam(match.home_team)} className={`px-3 py-1 font-mono text-[10px] uppercase tracking-widest border ${team === match.home_team ? 'border-accent-green bg-accent-green text-black font-bold' : 'border-line text-ink-muted'}`}>{match.home_team}</button>
                 <button data-testid="pick-away-team" onClick={() => setTeam(match.away_team)} className={`px-3 py-1 font-mono text-[10px] uppercase tracking-widest border ${team === match.away_team ? 'border-brand-secondary bg-brand-secondary text-white' : 'border-line text-ink-muted'}`}>{match.away_team}</button>
               </div>
 
@@ -234,13 +234,13 @@ export default function VARRoom() {
         {/* RIGHT PANE — Events log + Offside review */}
         <div className="space-y-4">
           {pending && (
-            <div className="bg-bg-card border-2 border-brand-primary p-4 red-glow" data-testid="offside-review">
-              <div className="font-mono text-[10px] uppercase tracking-widest text-brand-primary mb-2">⚑ AI OFFSIDE REVIEW</div>
+            <div className="bg-bg-card border-2 border-accent-green p-4 red-glow" data-testid="offside-review">
+              <div className="font-mono text-[10px] uppercase tracking-widest text-accent-green mb-2">⚑ AI OFFSIDE REVIEW</div>
               <div className="font-display text-3xl">{pending.type.toUpperCase()}</div>
               <div className="text-xs text-ink-muted mt-1">{pending.notes}</div>
-              <div className="font-mono text-xs mt-2">Confidence: <span className="text-brand-accent">{(pending.confidence * 100).toFixed(0)}%</span></div>
+              <div className="font-mono text-xs mt-2">Confidence: <span className="text-accent-amber">{(pending.confidence * 100).toFixed(0)}%</span></div>
               <div className="grid grid-cols-2 gap-2 mt-3">
-                <button data-testid="confirm-offside" onClick={() => { setPending(null); toast.success('AI decision confirmed'); }} className="bg-brand-primary h-10 font-mono uppercase tracking-widest text-xs text-white">CONFIRM</button>
+                <button data-testid="confirm-offside" onClick={() => { setPending(null); toast.success('AI decision confirmed'); }} className="bg-accent-green text-black font-bold h-10 font-mono uppercase tracking-widest text-xs text-white">CONFIRM</button>
                 <button data-testid="overturn-offside" onClick={() => { setPending(null); toast.warning('AI decision overturned'); }} className="border border-line h-10 font-mono uppercase tracking-widest text-xs">OVERTURN</button>
               </div>
             </div>
@@ -249,7 +249,7 @@ export default function VARRoom() {
           <div data-testid="var-events-log">
             <div className="flex items-center justify-between mb-2">
               <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted">EVENT LOG</div>
-              {isLive && <button data-testid="open-broadcast" onClick={() => window.open(`/broadcast/${id}`, '_blank')} className="font-mono text-[10px] uppercase tracking-widest text-brand-accent hover:text-white flex items-center gap-1">
+              {isLive && <button data-testid="open-broadcast" onClick={() => window.open(`/broadcast/${id}`, '_blank')} className="font-mono text-[10px] uppercase tracking-widest text-accent-amber hover:text-white flex items-center gap-1">
                 <Tv className="w-3 h-3" /> Live Viewer
               </button>}
             </div>
@@ -263,11 +263,11 @@ export default function VARRoom() {
                     <div className="flex-1 min-w-0">
                       <div className="font-mono text-xs uppercase tracking-widest flex items-center gap-2">
                         {m.label}
-                        {e.auto_detected && <span className="text-[9px] text-brand-accent">AI</span>}
+                        {e.auto_detected && <span className="text-[9px] text-accent-amber">AI</span>}
                       </div>
                       <div className="text-xs text-ink-muted truncate">{e.notes || `${e.team || ''} ${e.player_name || ''}`}</div>
                     </div>
-                    {e.minute != null && <div className="font-mono text-xs text-brand-accent flex-shrink-0">{e.minute}'</div>}
+                    {e.minute != null && <div className="font-mono text-xs text-accent-amber flex-shrink-0">{e.minute}'</div>}
                   </div>
                 );
               })}

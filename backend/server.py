@@ -10,6 +10,8 @@ Roles:
 
 import os
 import uuid
+import asyncio
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List, Literal
 
@@ -22,6 +24,9 @@ from pydantic import BaseModel, Field, EmailStr
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 
+log = logging.getLogger("footbail")
+logging.basicConfig(level=logging.INFO)
+
 # ───────────────────────── Config ─────────────────────────
 load_dotenv()
 MONGO_URL = os.environ["MONGO_URL"]
@@ -30,6 +35,7 @@ JWT_SECRET = os.environ["JWT_SECRET"]
 JWT_ALGO = os.environ.get("JWT_ALGORITHM", "HS256")
 JWT_EXPIRES_MIN = int(os.environ.get("JWT_EXPIRES_MIN", "1440"))
 CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*")
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
 
 # ───────────────────────── DB & Auth ─────────────────────────
 client = AsyncIOMotorClient(MONGO_URL)
@@ -481,17 +487,25 @@ async def analysis(mid: str):
     m = await db.matches.find_one({"id": mid}, {"_id": 0})
     if not m: raise HTTPException(404, "Match not found")
     events = await db.match_events.find({"match_id": mid}, {"_id": 0}).to_list(500)
-    goals = [e for e in events if e["type"] == "goal"]
     fouls = [e for e in events if e["type"] == "foul"]
     offsides = [e for e in events if e["type"] == "offside"]
-    yellows = [e for e in events if e["type"] == "yellow_card"]
-    # Mock performance analysis text
-    summary = (
-        f"{m['home_team']} dominated possession (58%) and created higher-quality chances. "
-        f"Key turning point was the {len(goals)}-goal surge. Defensive discipline was tested "
-        f"with {len(fouls)} fouls and {len(yellows)} cautions. "
-        f"AI offside system flagged {len(offsides)} close calls — all correctly overturned."
-    )
+
+    # Cache or generate AI summary
+    cached = await db.match_analysis.find_one({"match_id": mid}, {"_id": 0})
+    if cached and cached.get("summary"):
+        summary = cached["summary"]
+        source = cached.get("source", "cache")
+    else:
+        summary = await _ai_match_summary(m, events)
+        # Detect if the returned text is the fallback template
+        is_fallback = "AI offside system flagged" in summary and "all correctly overturned" in summary
+        source = "fallback" if is_fallback else "gpt-4o-mini"
+        await db.match_analysis.update_one(
+            {"match_id": mid},
+            {"$set": {"match_id": mid, "summary": summary, "source": source, "created_at": now_iso()}},
+            upsert=True,
+        )
+
     return {
         "match": m, "events": events,
         "stats": {
@@ -505,10 +519,61 @@ async def analysis(mid: str):
             "corners": {"home": 5, "away": 3},
         },
         "summary": summary,
+        "summary_source": source,
         "motm": {"name": "Arjun Sharma", "rating": 8.6, "position": "CM", "goals": 1, "assists": 2},
         "heatmap_points": [{"x": x, "y": y} for x, y in
                            [(22, 30), (35, 45), (48, 40), (55, 55), (62, 48), (70, 60), (45, 35), (38, 52)]],
     }
+
+
+async def _ai_match_summary(match: dict, events: list) -> str:
+    """Generate a 3-paragraph AI match analysis via Emergent LLM (GPT-4o-mini). Falls back gracefully."""
+    fallback = _fallback_summary(match, events)
+    if not EMERGENT_LLM_KEY:
+        return fallback
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        ev_rows = "\n".join([
+            f"  · {e.get('minute', '?')}': {e.get('type')} — {e.get('team') or ''} {e.get('player_name') or ''}".strip()
+            for e in events if e.get("type") in {"goal", "foul", "yellow_card", "red_card", "offside"}
+        ]) or "  · (no logged events)"
+        prompt = (
+            f"Match: {match['home_team']} {match['score']['home']} – {match['score']['away']} {match['away_team']}\n"
+            f"Venue: {match.get('turf_name', 'Turf')} · Format: {match.get('format', '5v5')}\n"
+            f"Key events:\n{ev_rows}\n\n"
+            "Write a tight 3-paragraph analysis (~120 words). "
+            "Paragraph 1: who controlled the flow. Paragraph 2: the turning point & key individual moment. "
+            "Paragraph 3: tactical takeaway for the losing side. "
+            "Voice: confident football analyst. No emojis. No headings. No markdown. "
+            "Separate paragraphs with a blank line."
+        )
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"analysis-{match['id']}",
+            system_message=(
+                "You are a professional grassroots football analyst for India's footbAIl.in. "
+                "Crisp, specific, tactical. No hype, no clichés."
+            ),
+        ).with_model("openai", "gpt-4o-mini")
+        resp = await asyncio.wait_for(chat.send_message(UserMessage(text=prompt)), timeout=20)
+        text = (resp or "").strip()
+        return text if len(text) > 40 else fallback
+    except Exception as e:
+        log.warning("AI summary failed: %s", e)
+        return fallback
+
+
+def _fallback_summary(match: dict, events: list) -> str:
+    goals = [e for e in events if e.get("type") == "goal"]
+    fouls = [e for e in events if e.get("type") == "foul"]
+    offsides = [e for e in events if e.get("type") == "offside"]
+    yellows = [e for e in events if e.get("type") == "yellow_card"]
+    return (
+        f"{match['home_team']} dominated possession (58%) and created higher-quality chances. "
+        f"Key turning point was the {len(goals)}-goal surge. Defensive discipline was tested "
+        f"with {len(fouls)} fouls and {len(yellows)} cautions. "
+        f"AI offside system flagged {len(offsides)} close calls — all correctly overturned."
+    )
 
 # ───────────────────────── Explore (3x3) ─────────────────────────
 @app.get("/api/explore/coaches")

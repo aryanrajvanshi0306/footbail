@@ -38,7 +38,7 @@ export default function Register() {
 
       <main className="flex-1 max-w-md mx-auto w-full p-6">
         <div className="mb-8">
-          <div className="font-mono text-xs uppercase tracking-widest text-brand-accent">Step {step} of 3</div>
+          <div className="font-mono text-xs uppercase tracking-widest text-accent-amber">Step {step} of 3</div>
           <div className="font-display text-4xl mt-1">
             {step === 1 && 'Pick Your Role'}
             {step === 2 && 'Your Details'}
@@ -60,14 +60,14 @@ export default function Register() {
                 data-testid={`role-${r.v}`}
                 onClick={() => setRole(r.v)}
                 className={`w-full text-left p-5 border-2 transition-colors ${
-                  role === r.v ? 'border-brand-primary bg-brand-primary/10' : 'border-line hover:border-ink-muted'
+                  role === r.v ? 'border-accent-green bg-accent-green text-black/10' : 'border-line hover:border-ink-muted'
                 }`}
               >
                 <div className="font-display text-3xl tracking-wider">{r.t.toUpperCase()}</div>
                 <div className="text-sm text-ink-muted mt-1">{r.d}</div>
               </button>
             ))}
-            <button data-testid="role-next-btn" onClick={() => setStep(2)} className="w-full mt-6 bg-brand-primary h-12 font-display text-xl tracking-widest uppercase hover:bg-[#D63026]">
+            <button data-testid="role-next-btn" onClick={() => setStep(2)} className="w-full mt-6 bg-accent-green text-black font-bold h-12 font-display text-xl tracking-widest uppercase hover:bg-[#00C853]">
               Continue →
             </button>
           </div>
@@ -76,22 +76,22 @@ export default function Register() {
         {step === 2 && (
           <div className="space-y-3" data-testid="details-step">
             <Field label="Full Name" testid="reg-name">
-              <input data-testid="reg-name-input" value={form.name} onChange={(e) => setF('name', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-brand-primary outline-none" />
+              <input data-testid="reg-name-input" value={form.name} onChange={(e) => setF('name', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-accent-green outline-none" />
             </Field>
             <Field label="Email" testid="reg-email">
-              <input data-testid="reg-email-input" type="email" value={form.email} onChange={(e) => setF('email', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-brand-primary outline-none" />
+              <input data-testid="reg-email-input" type="email" value={form.email} onChange={(e) => setF('email', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-accent-green outline-none" />
             </Field>
             <Field label="Phone (optional)" testid="reg-phone">
-              <input data-testid="reg-phone-input" value={form.phone} onChange={(e) => setF('phone', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-brand-primary outline-none" placeholder="+91" />
+              <input data-testid="reg-phone-input" value={form.phone} onChange={(e) => setF('phone', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-accent-green outline-none" placeholder="+91" />
             </Field>
             <Field label="City" testid="reg-city">
-              <select data-testid="reg-city-input" value={form.city} onChange={(e) => setF('city', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-brand-primary outline-none">
+              <select data-testid="reg-city-input" value={form.city} onChange={(e) => setF('city', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-accent-green outline-none">
                 {CITIES.map((c) => <option key={c}>{c}</option>)}
               </select>
             </Field>
             {role === 'player' && (
               <Field label="Position" testid="reg-position">
-                <select data-testid="reg-position-input" value={form.position} onChange={(e) => setF('position', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-brand-primary outline-none">
+                <select data-testid="reg-position-input" value={form.position} onChange={(e) => setF('position', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-accent-green outline-none">
                   {POSITIONS.map((p) => <option key={p}>{p}</option>)}
                 </select>
               </Field>
@@ -102,7 +102,7 @@ export default function Register() {
                 data-testid="next-btn"
                 disabled={!form.name || !form.email}
                 onClick={() => setStep(3)}
-                className="flex-1 bg-brand-primary h-12 font-display text-xl tracking-widest uppercase disabled:opacity-50 hover:bg-[#D63026]"
+                className="flex-1 bg-accent-green text-black font-bold h-12 font-display text-xl tracking-widest uppercase disabled:opacity-50 hover:bg-[#00C853]"
               >
                 Next →
               </button>
@@ -113,7 +113,7 @@ export default function Register() {
         {step === 3 && (
           <div className="space-y-3" data-testid="password-step">
             <Field label="Password (min 4 chars)" testid="reg-password">
-              <input data-testid="reg-password-input" type="password" value={form.password} onChange={(e) => setF('password', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-brand-primary outline-none" />
+              <input data-testid="reg-password-input" type="password" value={form.password} onChange={(e) => setF('password', e.target.value)} className="w-full bg-bg-card border border-line h-12 px-4 text-white focus:border-accent-green outline-none" />
             </Field>
             <div className="bg-bg-card border border-line p-4 my-4">
               <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted">SUMMARY</div>
@@ -129,7 +129,7 @@ export default function Register() {
                 data-testid="register-submit-btn"
                 disabled={loading || form.password.length < 4}
                 onClick={submit}
-                className="flex-1 bg-brand-primary h-12 font-display text-xl tracking-widest uppercase disabled:opacity-50 hover:bg-[#D63026]"
+                className="flex-1 bg-accent-green text-black font-bold h-12 font-display text-xl tracking-widest uppercase disabled:opacity-50 hover:bg-[#00C853]"
               >
                 {loading ? 'Signing up...' : 'Sign Up'}
               </button>

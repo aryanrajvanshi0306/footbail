@@ -52,7 +52,7 @@ export default function CreateMatch() {
       <div className="font-display text-3xl mb-1">CREATE MATCH</div>
       <div className="flex gap-1 mb-6">
         {STEPS.map((s, i) => (
-          <div key={s} className={`flex-1 h-1 ${i < step ? 'bg-brand-primary' : 'bg-line'}`} />
+          <div key={s} className={`flex-1 h-1 ${i < step ? 'bg-accent-green text-black' : 'bg-line'}`} />
         ))}
       </div>
 
@@ -64,7 +64,7 @@ export default function CreateMatch() {
               key={t}
               data-testid={`pick-home-${t}`}
               onClick={() => { set('home_team', t); setStep(2); }}
-              className={`w-full text-left p-4 border ${data.home_team === t ? 'border-brand-primary bg-brand-primary/10' : 'border-line hover:border-ink-muted'}`}
+              className={`w-full text-left p-4 border ${data.home_team === t ? 'border-accent-green bg-accent-green text-black/10' : 'border-line hover:border-ink-muted'}`}
             >
               <span className="font-display text-xl">{t.toUpperCase()}</span>
             </button>
@@ -80,7 +80,7 @@ export default function CreateMatch() {
               key={t}
               data-testid={`pick-away-${t}`}
               onClick={() => { set('away_team', t); setStep(3); }}
-              className={`w-full text-left p-4 border ${data.away_team === t ? 'border-brand-primary bg-brand-primary/10' : 'border-line hover:border-ink-muted'}`}
+              className={`w-full text-left p-4 border ${data.away_team === t ? 'border-accent-green bg-accent-green text-black/10' : 'border-line hover:border-ink-muted'}`}
             >
               <span className="font-display text-xl">{t.toUpperCase()}</span>
             </button>
@@ -97,7 +97,7 @@ export default function CreateMatch() {
                 key={t.id}
                 data-testid={`pick-turf-${t.id}`}
                 onClick={() => set('turf_id', t.id)}
-                className={`text-left p-3 border ${data.turf_id === t.id ? 'border-brand-primary bg-brand-primary/10' : 'border-line hover:border-ink-muted'}`}
+                className={`text-left p-3 border ${data.turf_id === t.id ? 'border-accent-green bg-accent-green text-black/10' : 'border-line hover:border-ink-muted'}`}
               >
                 <div className="font-display text-lg">{t.name.toUpperCase()}</div>
                 <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted">{t.address} · {fmtINR(t.price_per_slot)} / slot</div>
@@ -111,7 +111,7 @@ export default function CreateMatch() {
                 key={s.iso}
                 data-testid={`slot-${s.iso}`}
                 onClick={() => set('slot', s.iso)}
-                className={`p-2 border text-xs font-mono ${data.slot === s.iso ? 'border-brand-primary bg-brand-primary/10' : 'border-line hover:border-ink-muted'}`}
+                className={`p-2 border text-xs font-mono ${data.slot === s.iso ? 'border-accent-green bg-accent-green text-black/10' : 'border-line hover:border-ink-muted'}`}
               >
                 {s.label}
               </button>
@@ -121,7 +121,7 @@ export default function CreateMatch() {
             data-testid="step3-next"
             disabled={!data.turf_id || !data.slot}
             onClick={() => setStep(4)}
-            className="w-full mt-4 bg-brand-primary h-12 font-display text-xl tracking-widest uppercase disabled:opacity-40 hover:bg-[#D63026]"
+            className="w-full mt-4 bg-accent-green text-black font-bold h-12 font-display text-xl tracking-widest uppercase disabled:opacity-40 hover:bg-[#00C853]"
           >
             Next →
           </button>
@@ -135,7 +135,7 @@ export default function CreateMatch() {
             <div className="font-display text-3xl mt-1">{fmtINR(turfs.find((t) => t.id === data.turf_id)?.price_per_slot || 0)}</div>
             <div className="text-sm text-ink-muted">UPI / Card / Netbanking via Razorpay (mocked in MVP)</div>
           </div>
-          <button data-testid="mock-pay-btn" onClick={() => setStep(5)} className="w-full bg-brand-accent text-black h-12 font-display text-xl tracking-widest uppercase hover:opacity-90">
+          <button data-testid="mock-pay-btn" onClick={() => setStep(5)} className="w-full bg-accent-amber text-black font-bold h-12 font-display text-xl tracking-widest uppercase hover:opacity-90">
             Pay Now (Mock)
           </button>
         </div>
@@ -149,7 +149,7 @@ export default function CreateMatch() {
             <Row k="SLOT" v={new Date(data.slot).toLocaleString('en-IN')} />
             <Row k="FORMAT" v={data.format} />
           </div>
-          <button data-testid="confirm-create-btn" onClick={create} className="w-full bg-brand-primary h-12 font-display text-xl tracking-widest uppercase hover:bg-[#D63026] flex items-center justify-center gap-2">
+          <button data-testid="confirm-create-btn" onClick={create} className="w-full bg-accent-green text-black font-bold h-12 font-display text-xl tracking-widest uppercase hover:bg-[#00C853] flex items-center justify-center gap-2">
             <Check className="w-5 h-5" /> Confirm Match
           </button>
         </div>

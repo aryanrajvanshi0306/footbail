@@ -36,7 +36,7 @@ export default function AdminTurfs() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/admin" className="font-mono text-[10px] uppercase tracking-widest text-ink-muted flex items-center gap-1 hover:text-white" data-testid="back-to-admin"><ChevronLeft className="w-3 h-3" /> Control Room</Link>
           <div className="font-display text-2xl tracking-wider">TURFS</div>
-          <button data-testid="add-turf-btn" onClick={() => setShowForm(true)} className="bg-brand-primary px-3 h-9 inline-flex items-center gap-1 font-mono uppercase text-xs tracking-widest hover:bg-[#D63026]">
+          <button data-testid="add-turf-btn" onClick={() => setShowForm(true)} className="bg-accent-green text-black font-bold px-3 h-9 inline-flex items-center gap-1 font-mono uppercase text-xs tracking-widest hover:bg-[#00C853]">
             <Plus className="w-4 h-4" /> Add Turf
           </button>
         </div>
@@ -62,17 +62,17 @@ export default function AdminTurfs() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" data-testid="add-turf-modal">
           <form onSubmit={submit} className="bg-bg-card border border-line w-full max-w-md p-6 space-y-3">
             <div className="font-display text-2xl">ADD TURF</div>
-            <input data-testid="t-name" placeholder="Name" required value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-brand-primary" />
-            <input data-testid="t-city" placeholder="City" required value={form.city} onChange={(e) => setForm({...form, city: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-brand-primary" />
-            <input data-testid="t-addr" placeholder="Address" required value={form.address} onChange={(e) => setForm({...form, address: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-brand-primary" />
-            <input data-testid="t-price" type="number" placeholder="Price per slot (paise)" required value={form.price_per_slot} onChange={(e) => setForm({...form, price_per_slot: parseInt(e.target.value || 0)})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-brand-primary" />
-            <select data-testid="t-owner" value={form.owner_id} onChange={(e) => setForm({...form, owner_id: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-brand-primary">
+            <input data-testid="t-name" placeholder="Name" required value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-accent-green" />
+            <input data-testid="t-city" placeholder="City" required value={form.city} onChange={(e) => setForm({...form, city: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-accent-green" />
+            <input data-testid="t-addr" placeholder="Address" required value={form.address} onChange={(e) => setForm({...form, address: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-accent-green" />
+            <input data-testid="t-price" type="number" placeholder="Price per slot (paise)" required value={form.price_per_slot} onChange={(e) => setForm({...form, price_per_slot: parseInt(e.target.value || 0)})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-accent-green" />
+            <select data-testid="t-owner" value={form.owner_id} onChange={(e) => setForm({...form, owner_id: e.target.value})} className="w-full bg-bg border border-line h-12 px-3 outline-none focus:border-accent-green">
               <option value="">— Owner (optional, defaults to admin) —</option>
               {owners.map((o) => <option key={o.id} value={o.id}>{o.name} · {o.email}</option>)}
             </select>
             <div className="flex gap-2 pt-2">
               <button data-testid="t-cancel" type="button" onClick={() => setShowForm(false)} className="flex-1 border border-line h-12 font-mono uppercase tracking-widest hover:border-white">Cancel</button>
-              <button data-testid="t-submit" type="submit" className="flex-1 bg-brand-primary h-12 font-display text-xl tracking-widest uppercase hover:bg-[#D63026]">Save</button>
+              <button data-testid="t-submit" type="submit" className="flex-1 bg-accent-green text-black font-bold h-12 font-display text-xl tracking-widest uppercase hover:bg-[#00C853]">Save</button>
             </div>
           </form>
         </div>

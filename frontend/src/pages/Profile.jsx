@@ -25,7 +25,7 @@ export default function Profile() {
             size="lg"
           />
           <div className="font-display text-3xl mt-3">{me.name?.toUpperCase()}</div>
-          <div className="font-mono text-xs uppercase tracking-widest text-brand-accent">{me.position} · {me.city}</div>
+          <div className="font-mono text-xs uppercase tracking-widest text-accent-amber">{me.position} · {me.city}</div>
 
           <div className="w-full mt-6">
             <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-2">XP Progress</div>
@@ -54,18 +54,18 @@ export default function Profile() {
             <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted">Form (last 10)</div>
             <div className="flex items-end gap-1 mt-2 h-20">
               {[6, 7, 5, 8, 7, 8, 9, 7, 8, 9].map((v, i) => (
-                <div key={i} className="flex-1 bg-brand-primary" style={{ height: `${v * 10}%` }} />
+                <div key={i} className="flex-1 bg-accent-green text-black" style={{ height: `${v * 10}%` }} />
               ))}
             </div>
           </div>
         </div>
       ) : (
         <div className="mt-4 bg-bg-card border border-line p-6 text-center" data-testid="non-player-profile">
-          <div className="w-20 h-20 rounded-full bg-brand-primary flex items-center justify-center font-display text-4xl mx-auto">
+          <div className="w-20 h-20 rounded-full bg-accent-green text-black font-bold flex items-center justify-center font-display text-4xl mx-auto">
             {me.name?.[0]}
           </div>
           <div className="font-display text-3xl mt-3">{me.name?.toUpperCase()}</div>
-          <div className="font-mono text-xs uppercase tracking-widest text-brand-accent">{me.role} · {me.email}</div>
+          <div className="font-mono text-xs uppercase tracking-widest text-accent-amber">{me.role} · {me.email}</div>
           {me.role === 'coach' && (
             <div className="mt-4 grid grid-cols-2 gap-2 text-left">
               <Stat l="Sessions" v={me.sessions ?? 0} />

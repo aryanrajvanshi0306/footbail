@@ -22,7 +22,7 @@ export default function ExploreSection() {
         <div className="space-y-2" data-testid="leaderboard-list">
           {data.map((u, i) => (
             <div key={u.id} className="flex items-center gap-3 bg-bg-card border border-line p-3">
-              <div className="w-10 font-display text-3xl text-brand-accent">#{i + 1}</div>
+              <div className="w-10 font-display text-3xl text-accent-amber">#{i + 1}</div>
               <div className="flex-1">
                 <div className="font-bold">{u.name}</div>
                 <div className="font-mono text-[10px] text-ink-muted uppercase tracking-widest">{u.position} · {u.card_tier}</div>
@@ -38,7 +38,7 @@ export default function ExploreSection() {
           {data.map((c) => (
             <div key={c.id} className="bg-bg-card border border-line p-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-brand-primary flex items-center justify-center font-display text-xl">{c.name[0]}</div>
+                <div className="w-12 h-12 rounded-full bg-accent-green text-black font-bold flex items-center justify-center font-display text-xl">{c.name[0]}</div>
                 <div className="flex-1">
                   <div className="font-bold">{c.name}</div>
                   <div className="font-mono text-[10px] text-ink-muted uppercase tracking-widest">★ {c.rating} · {c.sessions} sessions</div>
@@ -75,7 +75,7 @@ export default function ExploreSection() {
                 <div className="font-bold">{p.name}</div>
                 <div className="font-mono text-[10px] text-ink-muted uppercase">{p.category}</div>
               </div>
-              <div className="bg-brand-accent text-black px-3 py-1 font-mono text-xs uppercase tracking-widest">{p.discount}</div>
+              <div className="bg-accent-amber text-black font-bold px-3 py-1 font-mono text-xs uppercase tracking-widest">{p.discount}</div>
             </div>
           ))}
         </div>
@@ -88,7 +88,7 @@ export default function ExploreSection() {
               <div className="font-display text-xl">{d.title.toUpperCase()}</div>
               <div className="flex gap-2 mt-2 font-mono text-[10px] uppercase">
                 <span className="border border-line px-2 py-0.5">{d.duration}</span>
-                <span className="border border-brand-primary text-brand-primary px-2 py-0.5">{d.difficulty}</span>
+                <span className="border border-accent-green text-accent-green px-2 py-0.5">{d.difficulty}</span>
                 <span className="border border-line px-2 py-0.5">{d.focus}</span>
               </div>
             </div>
@@ -102,7 +102,7 @@ export default function ExploreSection() {
             <div key={e.id} className="bg-bg-card border border-line p-4">
               <div className="font-display text-xl">{e.title.toUpperCase()}</div>
               <div className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mt-1">{e.date} · {e.city}</div>
-              <div className="font-mono text-brand-accent mt-2">{e.prize}</div>
+              <div className="font-mono text-accent-amber mt-2">{e.prize}</div>
             </div>
           ))}
         </div>
@@ -129,7 +129,7 @@ export default function ExploreSection() {
       {section === 'trophies' && (
         <div className="grid grid-cols-2 gap-3">
           {data.map((t) => (
-            <div key={t.id} className={`p-4 border ${t.unlocked ? 'border-brand-accent bg-bg-card' : 'border-line opacity-50'}`}>
+            <div key={t.id} className={`p-4 border ${t.unlocked ? 'border-accent-amber bg-bg-card' : 'border-line opacity-50'}`}>
               <div className="font-display text-xl">{t.name.toUpperCase()}</div>
               <div className="font-mono text-[10px] uppercase mt-1" style={{ color: t.rarity === 'Legendary' ? '#FFD700' : t.rarity === 'Epic' ? '#FF3B30' : '#A1A1A1' }}>{t.rarity}</div>
               <div className="font-mono text-xs mt-1">{t.unlocked ? '✓ Unlocked' : 'Locked'}</div>
@@ -143,7 +143,7 @@ export default function ExploreSection() {
           {data.map((t) => (
             <div key={t.id} className="bg-bg-card border border-line p-4">
               <div className="font-display text-xl">{t.name.toUpperCase()}</div>
-              <div className="font-mono text-[10px] uppercase mt-1 text-brand-accent">{t.status}</div>
+              <div className="font-mono text-[10px] uppercase mt-1 text-accent-amber">{t.status}</div>
               <div className="font-mono text-xs mt-1">{t.teams} teams · Matchday {t.matchday}</div>
             </div>
           ))}

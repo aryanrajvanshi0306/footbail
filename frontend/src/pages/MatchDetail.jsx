@@ -18,7 +18,7 @@ export default function MatchDetail() {
   return (
     <div className="px-4 pt-4 pb-24" data-testid="match-detail-page">
       <div className="bg-bg-card border border-line p-4">
-        <span className={`font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 ${match.status === 'live' ? 'bg-brand-primary text-white animate-pulse-red' : match.status === 'complete' ? 'bg-bg-elevated text-ink-muted' : 'bg-brand-accent text-black'}`}>
+        <span className={`font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 ${match.status === 'live' ? 'bg-accent-red text-black font-bold animate-pulse-red' : match.status === 'complete' ? 'bg-bg-elevated text-ink-muted' : 'bg-accent-amber text-black font-bold'}`}>
           {match.status}
         </span>
         <div className="grid grid-cols-3 items-center mt-3">
@@ -27,7 +27,7 @@ export default function MatchDetail() {
             {match.status === 'complete' || match.status === 'live' ? (
               <div className="font-mono text-3xl font-bold">{match.score?.home} : {match.score?.away}</div>
             ) : (
-              <div className="font-mono text-brand-accent">VS</div>
+              <div className="font-mono text-accent-amber">VS</div>
             )}
           </div>
           <div className="text-left font-display text-2xl">{match.away_team.toUpperCase()}</div>
@@ -38,17 +38,17 @@ export default function MatchDetail() {
         </div>
         <div className="flex gap-2 mt-3">
           {match.status === 'live' && (
-            <button data-testid="watch-broadcast-btn" onClick={() => nav(`/broadcast/${id}`)} className="flex-1 bg-brand-primary text-white h-10 font-mono uppercase text-xs tracking-widest flex items-center justify-center gap-1 hover:bg-[#D63026]">
+            <button data-testid="watch-broadcast-btn" onClick={() => nav(`/broadcast/${id}`)} className="flex-1 bg-accent-green text-black font-bold h-10 font-mono uppercase text-xs tracking-widest flex items-center justify-center gap-1 hover:bg-[#00C853]">
               <Tv className="w-3.5 h-3.5" /> Watch Live
             </button>
           )}
           {match.status === 'complete' && (
-            <button data-testid="view-analysis-btn" onClick={() => nav(`/match/${id}/analysis`)} className="flex-1 bg-brand-accent text-black h-10 font-mono uppercase text-xs tracking-widest flex items-center justify-center gap-1">
+            <button data-testid="view-analysis-btn" onClick={() => nav(`/match/${id}/analysis`)} className="flex-1 bg-accent-amber text-black font-bold h-10 font-mono uppercase text-xs tracking-widest flex items-center justify-center gap-1">
               <BarChart3 className="w-3.5 h-3.5" /> View Analysis
             </button>
           )}
           {(me?.role === 'admin' || me?.role === 'referee') && match.status === 'scheduled' && (
-            <button data-testid="goto-var-btn" onClick={() => nav(`/admin/var/${id}`)} className="flex-1 border border-brand-primary text-brand-primary h-10 font-mono uppercase text-xs tracking-widest hover:bg-brand-primary hover:text-white">
+            <button data-testid="goto-var-btn" onClick={() => nav(`/admin/var/${id}`)} className="flex-1 border border-accent-green text-accent-green h-10 font-mono uppercase text-xs tracking-widest hover:bg-accent-green text-black hover:text-white">
               Open VAR Room
             </button>
           )}
@@ -62,7 +62,7 @@ export default function MatchDetail() {
             key={t}
             data-testid={`md-tab-${t}`}
             onClick={() => setTab(t)}
-            className={`h-10 font-mono uppercase text-xs tracking-widest ${tab === t ? 'border-b-2 border-brand-primary text-white' : 'text-ink-muted'}`}
+            className={`h-10 font-mono uppercase text-xs tracking-widest ${tab === t ? 'border-b-2 border-accent-green text-white' : 'text-ink-muted'}`}
           >
             {t}
           </button>
@@ -82,7 +82,7 @@ export default function MatchDetail() {
                   <div className="font-mono text-xs uppercase tracking-widest">{m.label}</div>
                   <div className="text-xs text-ink-muted">{e.notes || `${e.team || ''} ${e.player_name || ''}`}</div>
                 </div>
-                {e.minute != null && <div className="font-mono text-xs text-brand-accent">{e.minute}'</div>}
+                {e.minute != null && <div className="font-mono text-xs text-accent-amber">{e.minute}'</div>}
               </div>
             );
           })}
@@ -120,7 +120,7 @@ export default function MatchDetail() {
               <div className="grid grid-cols-3 items-center gap-2 mt-1">
                 <div className="text-right">{h}</div>
                 <div className="h-1.5 bg-line relative">
-                  <div className="absolute left-0 top-0 bottom-0 bg-brand-primary" style={{ width: '60%' }} />
+                  <div className="absolute left-0 top-0 bottom-0 bg-accent-green text-black" style={{ width: '60%' }} />
                 </div>
                 <div>{a}</div>
               </div>

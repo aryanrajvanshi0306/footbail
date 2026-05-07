@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, Trophy, TrendingUp, Activity } from 'lucide-react';
-import { api } from '../lib/api';
+import { ChevronLeft, Trophy, TrendingUp, Activity, Sparkles } from 'lucide-react';
+import { api, getUser } from '../lib/api';
 import { EVENT_META } from '../lib/constants';
+import ShareHighlight from '../components/ShareHighlight';
 
 export default function MatchAnalysis() {
   const { id } = useParams();
   const [data, setData] = useState(null);
+  const me = getUser();
   useEffect(() => { api.get(`/matches/${id}/analysis`).then((r) => setData(r.data)); }, [id]);
-  if (!data) return <div className="p-8 text-ink-muted bg-black min-h-screen">Loading…</div>;
+  if (!data) return <div className="p-8 text-ink-muted bg-bg min-h-screen">Loading…</div>;
 
-  const { match, events, stats, summary, motm, heatmap_points } = data;
+  const { match, events, stats, summary, summary_source, motm, heatmap_points } = data;
 
   return (
     <div className="min-h-screen bg-bg pb-20" data-testid="analysis-page">
@@ -27,7 +29,7 @@ export default function MatchAnalysis() {
         <div className="bg-bg-card border border-line p-4">
           <div className="grid grid-cols-3 items-center">
             <div className="text-right font-display text-2xl">{match.home_team.toUpperCase()}</div>
-            <div className="text-center font-mono font-bold text-4xl text-brand-accent">
+            <div className="text-center font-mono font-bold text-4xl text-accent-amber">
               {match.score?.home || 0} : {match.score?.away || 0}
             </div>
             <div className="text-left font-display text-2xl">{match.away_team.toUpperCase()}</div>
@@ -38,12 +40,19 @@ export default function MatchAnalysis() {
         </div>
 
         {/* AI Summary */}
-        <div className="bg-bg-card border border-brand-accent p-4" data-testid="ai-summary">
+        <div className="bg-bg-card border border-accent-purple/60 p-4 relative overflow-hidden" data-testid="ai-summary">
           <div className="flex items-center gap-2 mb-2">
-            <Activity className="w-4 h-4 text-brand-accent" />
-            <span className="font-mono text-[10px] uppercase tracking-widest text-brand-accent">AI MATCH ANALYSIS · GPT-4o</span>
+            <Sparkles className="w-4 h-4 text-accent-purple" />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-accent-purple">
+              AI MATCH ANALYSIS {summary_source ? `· ${summary_source}` : ''}
+            </span>
           </div>
-          <div className="text-sm leading-relaxed">{summary}</div>
+          <div className="text-sm leading-relaxed whitespace-pre-wrap">{summary}</div>
+        </div>
+
+        {/* Share Highlight Reel — viral loop */}
+        <div className="bg-bg-card border border-line p-4" data-testid="share-block">
+          <ShareHighlight match={match} motm={motm} userCity={me?.city || 'Mumbai'} goalCount={match.score?.home || 0} />
         </div>
 
         {/* MOTM */}
@@ -52,11 +61,11 @@ export default function MatchAnalysis() {
             <Trophy className="w-8 h-8 text-yellow-200" />
           </div>
           <div className="flex-1">
-            <div className="font-mono text-[10px] uppercase tracking-widest text-brand-accent">MAN OF THE MATCH</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-accent-amber">MAN OF THE MATCH</div>
             <div className="font-display text-2xl">{motm.name.toUpperCase()}</div>
             <div className="font-mono text-xs text-ink-muted">{motm.position} · {motm.goals}G · {motm.assists}A</div>
           </div>
-          <div className="font-mono font-bold text-3xl text-brand-accent">{motm.rating}</div>
+          <div className="font-mono font-bold text-3xl text-accent-amber">{motm.rating}</div>
         </div>
 
         {/* Stats */}
@@ -80,7 +89,7 @@ export default function MatchAnalysis() {
                 <div className="grid grid-cols-3 items-center gap-2 mt-1">
                   <div className="text-right font-bold">{h}</div>
                   <div className="h-1.5 bg-line relative flex">
-                    <div className="bg-brand-primary" style={{ width: `${hp}%` }} />
+                    <div className="bg-accent-green text-black" style={{ width: `${hp}%` }} />
                     <div className="bg-brand-secondary" style={{ width: `${100 - hp}%` }} />
                   </div>
                   <div className="font-bold">{a}</div>
@@ -121,7 +130,7 @@ export default function MatchAnalysis() {
                     <div className="font-mono text-xs uppercase tracking-widest">{m.label}</div>
                     <div className="text-xs text-ink-muted truncate">{e.notes}</div>
                   </div>
-                  {e.minute != null && <div className="font-mono text-xs text-brand-accent">{e.minute}'</div>}
+                  {e.minute != null && <div className="font-mono text-xs text-accent-amber">{e.minute}'</div>}
                 </div>
               );
             })}

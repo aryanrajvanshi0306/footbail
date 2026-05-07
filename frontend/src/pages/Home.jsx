@@ -53,7 +53,7 @@ export default function Home() {
           />
           <div>
             <div className="font-display text-2xl leading-none">{profile.name?.toUpperCase()}</div>
-            <div className="font-mono text-xs text-brand-accent uppercase tracking-widest">{profile.position} · OYP {profile.card_tier?.toUpperCase()}</div>
+            <div className="font-mono text-xs text-accent-amber uppercase tracking-widest">{profile.position} · OYP {profile.card_tier?.toUpperCase()}</div>
             <div className="mt-3 font-mono text-xs text-ink-muted">XP {profile.xp || 0} / {profile.xp_to_next || 1000}</div>
             <div className="h-1.5 bg-line mt-1 relative">
               <div className="absolute left-0 top-0 bottom-0 bg-brand-accent" style={{ width: `${Math.min(100, ((profile.xp || 0) / (profile.xp_to_next || 1000)) * 100)}%` }} />
@@ -83,7 +83,7 @@ export default function Home() {
             data-testid="post-submit-btn"
             onClick={send}
             disabled={!text.trim()}
-            className="flex items-center gap-2 bg-brand-primary px-4 h-9 font-mono uppercase tracking-widest text-xs disabled:opacity-40 hover:bg-[#D63026]"
+            className="flex items-center gap-2 bg-accent-green text-black font-bold px-4 h-9 font-mono uppercase tracking-widest text-xs disabled:opacity-40 hover:bg-[#00C853]"
           >
             <Send className="w-3.5 h-3.5" /> Post
           </button>
@@ -103,7 +103,7 @@ export default function Home() {
       <button
         data-testid="fab-create-match"
         onClick={() => nav('/matches/create')}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-brand-primary text-white flex items-center justify-center shadow-glow-red hover:bg-[#D63026] z-30"
+        className="fixed bottom-24 right-6 w-14 h-14 bg-accent-green text-black font-bold flex items-center justify-center shadow-glow-red hover:bg-[#00C853] z-30"
       >
         <Plus className="w-6 h-6" strokeWidth={2.5} />
       </button>
@@ -146,7 +146,7 @@ export function PostCard({ p, onReact }) {
             key={k}
             data-testid={`react-${k}-${p.id}`}
             onClick={() => onReact(p.id, k)}
-            className="flex items-center gap-1 px-2 py-1 border border-line hover:border-brand-primary text-xs font-mono"
+            className="flex items-center gap-1 px-2 py-1 border border-line hover:border-accent-green text-xs font-mono"
           >
             <span>{m.icon}</span>
             <span>{p.reactions?.[k] || 0}</span>

@@ -36,10 +36,10 @@ export default function Login() {
 
       <div className="relative w-full max-w-md p-6 md:p-10 z-10">
         <div className="mb-8 grain relative">
-          <div className="font-display text-7xl md:text-8xl leading-none tracking-tighter">
-            FOOT<span className="text-brand-primary">BAIL</span>
+          <div className="font-display text-7xl md:text-8xl leading-none tracking-tight font-bold">
+            foot<span className="text-accent-green">bAI</span>l
           </div>
-          <div className="font-mono text-xs uppercase tracking-[0.3em] text-brand-accent mt-2">
+          <div className="font-mono text-xs uppercase tracking-[0.3em] text-accent-amber mt-2">
             India's AI Football OS · 2026
           </div>
         </div>
@@ -52,7 +52,7 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full mt-1 bg-black/60 border border-line h-12 px-4 text-white focus:border-brand-primary outline-none"
+              className="w-full mt-1 bg-black/60 border border-line h-12 px-4 text-white focus:border-accent-green outline-none"
               required
             />
           </div>
@@ -63,28 +63,28 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-1 bg-black/60 border border-line h-12 px-4 text-white focus:border-brand-primary outline-none"
+              className="w-full mt-1 bg-black/60 border border-line h-12 px-4 text-white focus:border-accent-green outline-none"
               required
             />
           </div>
           <button
             data-testid="login-submit-btn"
             disabled={loading}
-            className="w-full bg-brand-primary text-white h-12 font-display text-xl tracking-widest uppercase hover:bg-[#D63026] disabled:opacity-50 transition-colors"
+            className="w-full bg-accent-green text-black h-12 font-display text-xl tracking-widest uppercase hover:bg-[#00C853] disabled:opacity-50 transition-colors font-bold shadow-glow-green"
           >
             {loading ? 'Signing In...' : 'Kick Off'}
           </button>
         </form>
 
         <div className="mt-6 grid grid-cols-3 gap-2">
-          <button data-testid="quick-player-btn" onClick={() => quick('arjun@demo.in', 'demo123')} className="border border-line p-2 text-xs font-mono uppercase hover:border-brand-primary">Player</button>
-          <button data-testid="quick-coach-btn" onClick={() => quick('ravi@coach.in', 'demo123')} className="border border-line p-2 text-xs font-mono uppercase hover:border-brand-accent">Coach</button>
-          <button data-testid="quick-admin-btn" onClick={() => quick('admin@footbail.in', 'admin123')} className="border border-line p-2 text-xs font-mono uppercase hover:border-brand-secondary">Admin</button>
+          <button data-testid="quick-player-btn" onClick={() => quick('arjun@demo.in', 'demo123')} className="border border-line p-2 text-xs font-mono uppercase hover:border-accent-green hover:text-accent-green transition-colors rounded-lg">Player</button>
+          <button data-testid="quick-coach-btn" onClick={() => quick('ravi@coach.in', 'demo123')} className="border border-line p-2 text-xs font-mono uppercase hover:border-accent-blue hover:text-accent-blue transition-colors rounded-lg">Coach</button>
+          <button data-testid="quick-admin-btn" onClick={() => quick('admin@footbail.in', 'admin123')} className="border border-line p-2 text-xs font-mono uppercase hover:border-accent-amber hover:text-accent-amber transition-colors rounded-lg">Admin</button>
         </div>
 
         <div className="mt-8 text-center text-sm text-ink-muted">
           New on the pitch?{' '}
-          <Link data-testid="goto-register-link" to="/register" className="text-brand-primary font-bold uppercase tracking-wider">
+          <Link data-testid="goto-register-link" to="/register" className="text-accent-green font-bold uppercase tracking-wider">
             Sign Up →
           </Link>
         </div>

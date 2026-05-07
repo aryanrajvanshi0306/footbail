@@ -27,11 +27,11 @@ export default function LiveBroadcast() {
           </Link>
           <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest">
             {match.status === 'live' ? (
-              <><span className="w-2 h-2 bg-brand-primary rounded-full animate-pulse" /><span className="text-brand-primary">LIVE</span></>
+              <><span className="w-2 h-2 bg-accent-green text-black font-bold rounded-full animate-pulse" /><span className="text-accent-green">LIVE</span></>
             ) : match.status === 'complete' ? (
               <span className="text-ink-muted">FULL TIME</span>
             ) : (
-              <span className="text-brand-accent">SCHEDULED</span>
+              <span className="text-accent-amber">SCHEDULED</span>
             )}
           </div>
         </div>
@@ -42,7 +42,7 @@ export default function LiveBroadcast() {
         <div className="bg-bg-card border border-line p-4 mb-4">
           <div className="grid grid-cols-3 items-center">
             <div className="text-right font-display text-3xl">{match.home_team.toUpperCase()}</div>
-            <div className="text-center font-mono font-bold text-5xl text-brand-accent" data-testid="bcast-score">
+            <div className="text-center font-mono font-bold text-5xl text-accent-amber" data-testid="bcast-score">
               {match.score?.home || 0} : {match.score?.away || 0}
             </div>
             <div className="text-left font-display text-3xl">{match.away_team.toUpperCase()}</div>
@@ -68,8 +68,8 @@ export default function LiveBroadcast() {
           ))}
           {match.status === 'live' && (
             <div className="absolute top-2 left-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest">
-              <span className="w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
-              <span className="text-brand-primary">LIVE</span>
+              <span className="w-2 h-2 rounded-full bg-accent-green text-black font-bold animate-pulse" />
+              <span className="text-accent-green">LIVE</span>
               <span className="text-ink-muted">| TURF CAM 01</span>
             </div>
           )}
@@ -104,10 +104,10 @@ export default function LiveBroadcast() {
                 <div key={e.id} className="bg-bg-card border border-line px-3 py-2 flex items-center gap-3">
                   <div className="w-7 h-7 flex items-center justify-center font-mono font-bold text-sm" style={{ background: m.color, color: '#000' }}>{m.icon}</div>
                   <div className="flex-1">
-                    <div className="font-mono text-xs uppercase tracking-widest">{m.label} {e.auto_detected && <span className="text-[9px] text-brand-accent ml-1">AI</span>}</div>
+                    <div className="font-mono text-xs uppercase tracking-widest">{m.label} {e.auto_detected && <span className="text-[9px] text-accent-amber ml-1">AI</span>}</div>
                     <div className="text-xs text-ink-muted">{e.notes || `${e.team || ''} ${e.player_name || ''}`}</div>
                   </div>
-                  {e.minute != null && <div className="font-mono text-xs text-brand-accent">{e.minute}'</div>}
+                  {e.minute != null && <div className="font-mono text-xs text-accent-amber">{e.minute}'</div>}
                 </div>
               );
             })}

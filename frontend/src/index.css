@@ -2,35 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --city-accent: #00E676; /* default; overridden per-user city */
+  --city-pattern-opacity: 0.06;
+}
+
 html, body, #root { height: 100%; }
 body {
   margin: 0;
-  background: #050505;
-  color: #fff;
+  background: #0A0F1E;
+  color: #F1F5F9;
   font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
 }
 
-::selection { background: #FF3B30; color: #fff; }
+::selection { background: var(--city-accent); color: #0A0F1E; }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
-::-webkit-scrollbar-thumb { background: #262626; border-radius: 0; }
-::-webkit-scrollbar-thumb:hover { background: #FF3B30; }
+::-webkit-scrollbar-track { background: #0A0F1E; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: var(--city-accent); }
 
-/* Focus rings */
-button:focus-visible, a:focus-visible, input:focus-visible {
-  outline: 2px solid #FF3B30;
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--city-accent);
   outline-offset: 2px;
 }
 
-/* Pitch SVG grass */
+/* Pitch grass */
 .pitch-bg {
   background:
-    linear-gradient(90deg, rgba(0,255,0,0.05) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(0,255,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,0,0.04) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(0,255,0,0.04) 1px, transparent 1px),
     linear-gradient(135deg, #0a2f1a 0%, #12482a 50%, #0a2f1a 100%);
   background-size: 40px 40px, 40px 40px, 100% 100%;
 }
@@ -45,13 +48,38 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .camera-scan {
-  background: linear-gradient(180deg, transparent 0%, rgba(255,59,48,0.15) 50%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--city-accent) 20%, transparent) 50%, transparent 100%);
   height: 40%;
 }
 
-.red-glow { box-shadow: 0 0 0 1px #FF3B30, 0 0 24px rgba(255,59,48,0.5); }
-.yellow-glow { box-shadow: 0 0 0 1px #E6FF00, 0 0 24px rgba(230,255,0,0.4); }
+/* City shine — applied as a 15% opacity overlay on hero cards */
+.city-shine::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(110deg, transparent 40%, color-mix(in srgb, var(--city-accent) 25%, transparent) 50%, transparent 60%);
+  background-size: 200% 100%;
+  animation: city-shine 6s linear infinite;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.6;
+}
 
-/* No radius globally */
-* { border-radius: 0 !important; }
-.rounded-full, [class*="rounded-full"] { border-radius: 9999px !important; }
+/* City micro-pattern (applied as bg-image via data-URI per city) */
+.city-pattern {
+  position: relative;
+}
+.city-pattern::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: var(--city-pattern);
+  background-size: 120px 120px;
+  opacity: var(--city-pattern-opacity);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* City accent ring for achievement/MOTM cards */
+.city-ring { box-shadow: 0 0 0 1px var(--city-accent), 0 0 24px color-mix(in srgb, var(--city-accent) 30%, transparent); }
+
+/* LFG glow */
+.lfg-glow { box-shadow: 0 0 0 2px var(--city-accent), 0 0 32px color-mix(in srgb, var(--city-accent) 50%, transparent); }
